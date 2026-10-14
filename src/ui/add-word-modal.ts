@@ -372,11 +372,19 @@ export class AddWordModal extends Modal {
                 text: message
             });
 
+            let confirmed = false;
+            let settled = false;
+            const settle = (value: boolean) => {
+                if (settled) return;
+                settled = true;
+                resolve(value);
+            };
+
             const buttonContainer = modal.contentEl.createDiv({ cls: 'hiwords-button-container' });
             const cancelButton = buttonContainer.createEl('button', { text: t('modals.cancel_button') });
             cancelButton.onclick = () => {
                 modal.close();
-                resolve(false);
+                settle(false);
             };
 
             const confirmButton = buttonContainer.createEl('button', {
@@ -384,11 +392,18 @@ export class AddWordModal extends Modal {
                 cls: 'mod-warning'
             });
             confirmButton.onclick = () => {
+                confirmed = true;
                 modal.close();
-                resolve(true);
+                settle(true);
             };
 
-            modal.onClose = () => resolve(false);
+            // Only treat an unconfirmed close (e.g. background click / Escape) as a cancel.
+            // Guard against double-resolve so the confirmation never silently cancels the
+            // deletion after the user actually clicked "Delete".
+            modal.onClose = () => {
+                if (!confirmed) settle(false);
+            };
+
             modal.open();
         });
     }

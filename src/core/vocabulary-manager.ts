@@ -930,6 +930,16 @@ export class VocabularyManager {
      */
     async deleteWordFromCanvas(bookPath: string, nodeId: string): Promise<boolean> {
         try {
+            // If the node has not been written to the Canvas file yet (temporary node ID),
+            // remove it from memory and cancel any pending sync that would re-create it.
+            // Otherwise the deferred sync would add the "deleted" word back to the file.
+            if (nodeId.startsWith('temp_')) {
+                this.cancelPendingSyncForNode(bookPath, nodeId);
+                this.deleteWordFromMemoryCache(bookPath, nodeId);
+                this.rebuildCache();
+                return true;
+            }
+
             // 1. Delete from the Canvas file first
             const success = await this.canvasEditor.deleteWordFromCanvas(bookPath, nodeId);
             
@@ -947,6 +957,29 @@ export class VocabularyManager {
         } catch (error) {
             console.error('Failed to delete word from canvas:', error);
             return false;
+        }
+    }
+
+    /**
+     * Remove a not-yet-synced (temporary node ID) word from the pending Canvas sync queue
+     */
+    private cancelPendingSyncForNode(bookPath: string, nodeId: string): void {
+        const pendingWords = this.pendingSyncWords.get(bookPath);
+        if (!pendingWords) return;
+
+        const index = pendingWords.findIndex(w => w.nodeId === nodeId);
+        if (index >= 0) {
+            pendingWords.splice(index, 1);
+        }
+
+        // If nothing is left to sync, clear the timer and the queue entirely
+        if (pendingWords.length === 0) {
+            const timeout = this.syncTimeouts.get(bookPath);
+            if (timeout) {
+                window.clearTimeout(timeout);
+            }
+            this.pendingSyncWords.delete(bookPath);
+            this.syncTimeouts.delete(bookPath);
         }
     }
 
