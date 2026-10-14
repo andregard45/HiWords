@@ -202,8 +202,10 @@ function isWordBoundary(text: string, start: number, end: number): boolean {
     const after = end < text.length ? text[end] : ' ';
     
     // Check whether surrounding characters are word characters
+    // Greek letters (e.g. ὐ in "οὐ") must count as word characters, otherwise
+    // "οὐ" would wrongly match inside longer words like "οὐκ" or "οὐδὲ".
     const isWordChar = (char: string) => {
-        return /[a-z0-9\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/iu.test(char);
+        return /[a-z0-9\p{Script=Greek}\p{Script=Cyrillic}\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/iu.test(char);
     };
     
     // CJK characters need no boundary check (Chinese, Japanese, Korean are not space-separated)

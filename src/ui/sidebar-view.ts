@@ -852,9 +852,21 @@ export class HiWordsSidebarView extends ItemView {
         const escaped = this.escapeRegExp(term);
         // Detect CJK, Japanese or Korean scripts
         const hasAsianScript = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/u.test(term);
-        const pattern = hasAsianScript ? `${escaped}` : `\\b${escaped}\\b`;
-        const flags = hasAsianScript ? 'giu' : 'gi';
-        return new RegExp(pattern, flags);
+        if (hasAsianScript) {
+            return new RegExp(escaped, 'giu');
+        }
+        // For non-ASCII Latin terms (e.g. Greek "οὐ"), \b is unreliable because
+        // JS treats accented letters like ὐ as non-word characters, which would
+        // make "οὐ" match inside longer words such as "οὐκ" or "οὐδὲ".
+        // Use Unicode-aware lookarounds instead.
+        if (/[^\x00-\x7F]/.test(term)) {
+            return new RegExp(
+                `(?<![\\p{L}\\p{N}])${escaped}(?![\\p{L}\\p{N}])`,
+                'giu'
+            );
+        }
+        const pattern = `\\b${escaped}\\b`;
+        return new RegExp(pattern, 'gi');
     }
 
     /**
