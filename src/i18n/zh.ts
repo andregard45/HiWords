@@ -75,6 +75,10 @@ export default {
         mode_filename: "仅文件名",
         mode_content: "仅文件内容",
         mode_filename_with_alias: "文件名作为主词，内容作为别名",
+        // Add-word description template settings
+        add_word_template: "添加单词描述模板",
+        add_word_template_desc: "执行 \"HiWords: Add word\" 时自动预填到描述字段的模板。支持的占位符：{word}、{sentence}",
+        add_word_template_placeholder: "例如：**{word}**\n\n释义：\n\n例句：{sentence}",
     },
 
     // 侧边栏
@@ -161,7 +165,7 @@ export default {
     modals: {
         word_label: "单词",
         word_placeholder: "输入要添加的单词...",
-        definition_label: "释义",
+        definition_label: "描述",
         book_label: "单词本",
         select_book: "选择单词本",
         color_label: "卡片颜色",
@@ -174,7 +178,7 @@ export default {
         color_purple: "紫色",
         aliases_label: "别名（可选，用逗号分隔）",
         aliases_placeholder: "例如：doing, done, did",
-        definition_placeholder: "输入词汇释义...",
+        definition_placeholder: "输入单词描述...",
         add_button: "添加",
         save_button: "保存",
         cancel_button: "取消",

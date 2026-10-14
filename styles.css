@@ -402,8 +402,8 @@
 .hiwords-word-definition-input {
     width: 100%;
     min-height: 100px;
-    margin: 8px 0;
-
+    /* Spacing is handled uniformly by .hiwords-form-item (label -> box gap) */
+    margin: 0;
 }
 
 .hiwords-modal-button-container {
@@ -437,7 +437,8 @@
 
 .hiwords-form-item-label {
     display: block;
-    margin-bottom: 6px;
+    /* Consistent label-to-input spacing for every form item */
+    margin-bottom: 8px;
     font-weight: 400;
     font-size: 14px;
     color: var(--text-muted);
@@ -1894,14 +1895,6 @@
 .hi-words-book-icons .clickable-icon svg {
     width: 16px;
     height: 16px;
-}
-
-/* Auto-fill-definition button styles */
-.hiwords-definition-label-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 8px;
 }
 
 .hiwords-auto-fill-btn {

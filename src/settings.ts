@@ -27,4 +27,6 @@ export const DEFAULT_SETTINGS: HiWordsSettings = {
     enableSectionTabs: true,
     // Sidebar default display mode
     sidebarDefaultDisplayMode: 'detail',
+    // Default description template for the Add-word modal
+    addWordDescriptionTemplate: '',
 };

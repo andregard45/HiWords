@@ -147,6 +147,37 @@ export class HiWordsSettingTab extends PluginSettingTab {
                 }));
     }
 
+    /**
+     * Add the customizable description-template setting for the "HiWords: Add word" command
+     */
+    private addAddWordTemplateSettings() {
+        const { containerEl } = this;
+
+        const templateSetting = new Setting(containerEl)
+            .setName(t('settings.add_word_template') || 'Description template')
+            .setDesc(t('settings.add_word_template_desc') || 'Template prefilled into the Description field when running "HiWords: Add word". Placeholders: {word}, {sentence}');
+
+        templateSetting.settingEl.addClass('hi-words-setting-textarea');
+        templateSetting.controlEl.empty();
+
+        // Create a full-width textarea inside the current setting (same pattern as highlight paths)
+        const textAreaContainer = templateSetting.controlEl.createDiv({ cls: 'hi-words-textarea-container' });
+        const textArea = textAreaContainer.createEl('textarea');
+        textArea.placeholder = t('settings.add_word_template_placeholder') || 'e.g.: **{word}**\n\nMeaning:\n\nExample: {sentence}';
+        textArea.value = this.plugin.settings.addWordDescriptionTemplate || '';
+        textArea.rows = 4;
+
+        // Save on blur to avoid frequent writes
+        textArea.addEventListener('blur', () => {
+            void (async () => {
+                this.plugin.settings.addWordDescriptionTemplate = textArea.value;
+                await this.plugin.saveSettings();
+            })().catch(error => {
+                console.error('HiWords failed to save add-word description template:', error);
+            });
+        });
+    }
+
     display(): void {
         const { containerEl } = this;
         containerEl.empty();
@@ -163,6 +194,9 @@ export class HiWordsSettingTab extends PluginSettingTab {
 
         // 4. Canvas settings
         this.addAutoLayoutSettings();
+
+        // 5. Add-word description template
+        this.addAddWordTemplateSettings();
     }
 
     /**

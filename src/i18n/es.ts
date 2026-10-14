@@ -72,6 +72,10 @@ export default {
         mode_filename: "Solo nombre de archivo",
         mode_content: "Solo contenido de archivo",
         mode_filename_with_alias: "Nombre de archivo como palabra, contenido como alias",
+        // Add-word description template settings
+        add_word_template: "Plantilla de descripción",
+        add_word_template_desc: "Plantilla que se rellena automáticamente en el campo Descripción al ejecutar \"HiWords: Add word\". Marcadores: {word}, {sentence}",
+        add_word_template_placeholder: "ej.: **{word}**\n\nSignificado:\n\nEjemplo: {sentence}",
     },
 
     // Sidebar
@@ -155,7 +159,7 @@ export default {
     modals: {
         word_label: "Palabra",
         word_placeholder: "Ingresa la palabra a agregar...",
-        definition_label: "Definición",
+        definition_label: "Descripción",
         book_label: "Libro de palabras",
         select_book: "Selecciona un libro",
         color_label: "Color de tarjeta",
@@ -168,7 +172,7 @@ export default {
         color_purple: "Púrpura",
         aliases_label: "Alias (opcional, separados por comas)",
         aliases_placeholder: "p. ej.: doing, done, did",
-        definition_placeholder: "Introduce la definición...",
+        definition_placeholder: "Introduce la descripción...",
         add_button: "Agregar",
         save_button: "Guardar",
         cancel_button: "Cancelar",

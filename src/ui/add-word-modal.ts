@@ -165,10 +165,9 @@ export class AddWordModal extends Modal {
             aliasesInput.value = this.definition.aliases.join(', ');
         }
 
-        // Definition input
+        // Description input (renamed from "Definition" for consistency)
         const definitionContainer = contentEl.createDiv({ cls: 'hiwords-form-item' });
-        const definitionLabelContainer = definitionContainer.createDiv({ cls: 'hiwords-definition-label-container' });
-        definitionLabelContainer.createEl('label', { text: t('modals.definition_label'), cls: 'hiwords-form-item-label' });
+        definitionContainer.createEl('label', { text: t('modals.definition_label'), cls: 'hiwords-form-item-label' });
 
         const definitionInput = definitionContainer.createEl('textarea', {
             placeholder: t('modals.definition_placeholder'),
@@ -182,6 +181,10 @@ export class AddWordModal extends Modal {
         }
         else if (this.prefilledDefinition) {
             definitionInput.value = this.prefilledDefinition;
+        }
+        else if (!this.isEditMode) {
+            // Add mode: prefill the customizable description template from settings
+            definitionInput.value = this.buildDescriptionTemplate();
         }
 
         // Smart focus logic
@@ -356,6 +359,19 @@ export class AddWordModal extends Modal {
                 }
             })();
         };
+    }
+
+    /**
+     * Build the prefilled description from the user's template setting.
+     * Supported placeholders: {word}, {sentence}
+     */
+    private buildDescriptionTemplate(): string {
+        const template = this.plugin.settings.addWordDescriptionTemplate ?? '';
+        if (!template.trim()) return '';
+
+        return template
+            .replace(/\{word\}/gi, this.word)
+            .replace(/\{sentence\}/gi, this.sentence);
     }
 
     /**
