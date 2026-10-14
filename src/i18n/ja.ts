@@ -47,18 +47,6 @@ export default {
         pronunciation_variant_desc: "構造化カードで表示・再生するアクセントを選択",
         pronunciation_uk: "UK",
         pronunciation_us: "US",
-        ai_dictionary: "AIアシスタント",
-        ai_api_url: "API URL",
-        ai_api_url_desc: "APIエンドポイント（自動検出：OpenAI、Claude、Gemini）",
-        ai_api_key: "APIキー",
-        ai_api_key_desc: "あなたのAI APIキー",
-        ai_model: "モデル",
-        ai_model_desc: "AIモデル名（例：gpt-4o-mini、deepseek-chat）",
-        ai_prompt: "カスタムプロンプト",
-        ai_prompt_desc: "{{word}}と{{sentence}}をプレースホルダーとして使用。AIはこのプロンプトを使用して定義を生成します",
-        ai_extra_params: "追加リクエストパラメータ",
-        ai_extra_params_desc: "AIリクエスト本文にカスタム JSON パラメータを追加します（上級者向け）",
-        ai_extra_params_placeholder: '{\n  "temperature": 0.7,\n  "top_p": 0.9\n}',
         // Auto layout
         auto_layout: "キャンバス自動レイアウト",
         enable_auto_layout: "自動レイアウトを有効化",
@@ -90,14 +78,6 @@ export default {
         mode_filename: "ファイル名のみ",
         mode_content: "ファイル内容のみ",
         mode_filename_with_alias: "ファイル名を単語、内容をエイリアスとして",
-        // Selection translate settings
-        selection_translate: "選択翻訳",
-        enable_selection_translate: "選択翻訳を有効にする",
-        enable_selection_translate_desc: "テキストを選択すると翻訳ポップアップを表示",
-        translate_target_lang: "ターゲット言語",
-        translate_target_lang_desc: "ターゲット言語コード（例：zh-CN、en、ja）",
-        translate_prompt: "翻訳プロンプト",
-        translate_prompt_desc: "AI翻訳のプロンプトテンプレート。{{text}}と{{to}}をプレースホルダーとして使用",
     },
 
     // Sidebar
@@ -179,7 +159,6 @@ export default {
 
     // Modals
     modals: {
-        auto_fill_definition: "AI定義",
         word_label: "単語",
         word_placeholder: "追加する単語を入力...",
         definition_label: "定義",
@@ -271,23 +250,5 @@ export default {
         unmark_mastered: "習得済みを解除",
     },
     // 選択翻訳
-    translate: {
-        text_empty: "翻訳テキストは空にできません",
-        translating: "翻訳中...",
-        failed: "翻訳に失敗しました。もう一度お試しください",
-        ai_not_configured: "AI翻訳が設定されていません。設定でAPIを構成してください",
-        invalid_response: "翻訳サービスが無効なレスポンスを返しました",
-    },
     // AI辞書エラー
-    ai_errors: {
-        word_empty: "単語を入力してください",
-        api_key_not_configured: "APIキーが設定されていません。プラグイン設定で設定してください",
-        invalid_response: "APIが無効な応答形式を返しました",
-        api_key_invalid: "❌ APIキーが無効または期限切れです。プラグイン設定を確認してください",
-        rate_limit: "⏱️ APIレート制限を超えました。後でもう一度お試しください",
-        server_error: "🔧 APIサービスが一時的に利用できません。後でもう一度お試しください",
-        network_error: "🌐 ネットワーク接続に失敗しました。ネットワーク設定を確認してください",
-        request_failed: "AI辞書リクエストが失敗しました",
-        invalid_json_format: "JSON 形式が無効です。構文を確認してください",
-    },
 }

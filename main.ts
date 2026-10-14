@@ -6,7 +6,7 @@ import { DEFAULT_SETTINGS } from './src/settings';
 import { registerReadingModeHighlighter } from './src/ui/reading-mode-highlighter';
 import { registerPDFHighlighter, cleanupPDFHighlighter } from './src/ui/pdf-highlighter';
 import { VocabularyManager, MasteredService, createWordHighlighterExtension, highlighterManager } from './src/core';
-import { DefinitionPopover, HiWordsLibraryView, HiWordsSettingTab, HiWordsSidebarView, LIBRARY_VIEW_TYPE, SIDEBAR_VIEW_TYPE, AddWordModal, SelectionTranslatePopover } from './src/ui';
+import { DefinitionPopover, HiWordsLibraryView, HiWordsSettingTab, HiWordsSidebarView, LIBRARY_VIEW_TYPE, SIDEBAR_VIEW_TYPE, AddWordModal } from './src/ui';
 import { i18n } from './src/i18n';
 import { registerCommands } from './src/commands';
 import { registerEvents } from './src/events';
@@ -22,7 +22,6 @@ export default class HiWordsPlugin extends Plugin {
     vocabularyManager!: VocabularyManager;
     definitionPopover!: DefinitionPopover;
     masteredService!: MasteredService;
-    selectionTranslatePopover!: SelectionTranslatePopover;
     editorExtensions: Extension[] = [];
     private isSidebarInitialized = false;
 
@@ -44,10 +43,6 @@ export default class HiWordsPlugin extends Plugin {
         this.addChild(this.definitionPopover);
         this.definitionPopover.setVocabularyManager(this.vocabularyManager);
         this.definitionPopover.setMasteredService(this.masteredService);
-        
-        // 初始化划词翻译浮窗
-        this.selectionTranslatePopover = new SelectionTranslatePopover(this);
-        this.addChild(this.selectionTranslatePopover);
         
         // 注册侧边栏视图
         this.registerView(
@@ -243,7 +238,32 @@ export default class HiWordsPlugin extends Plugin {
      * 加载设置
      */
     async loadSettings() {
-        this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+        const loaded = (await this.loadData()) as Partial<HiWordsSettings> | null;
+
+        // 迁移：彻底移除已废弃的 AI 相关设置（本插件现已 100% 离线）
+        if (loaded) {
+            let removed = false;
+            const deprecatedKeys = [
+                'aiService', 'aiDefinition', 'selectionTranslate',
+                'enableAiDefinition', 'enableSelectionTranslate',
+                'aiApiUrl', 'aiApiKey', 'aiModel', 'aiPrompt', 'aiExtraParams',
+                'aiProvider', 'translateTargetLang', 'translatePrompt',
+            ];
+            const loadedRecord = loaded as Record<string, unknown>;
+            for (const key of deprecatedKeys) {
+                if (key in loadedRecord) {
+                    delete loadedRecord[key];
+                    removed = true;
+                }
+            }
+            if (removed) {
+                void this.saveData(loadedRecord).catch(error => {
+                    console.error('HiWords failed to persist settings migration:', error);
+                });
+            }
+        }
+
+        this.settings = Object.assign({}, DEFAULT_SETTINGS, loaded);
     }
 
     /**
@@ -253,7 +273,6 @@ export default class HiWordsPlugin extends Plugin {
         await this.saveData(this.settings);
         this.vocabularyManager.updateSettings(this.settings);
         this.masteredService.updateSettings();
-        this.selectionTranslatePopover.updateSettings();
     }
 
     /**
@@ -261,7 +280,6 @@ export default class HiWordsPlugin extends Plugin {
      * 检查单词是否已存在，如果存在则打开编辑模式，否则打开添加模式
      * @param word 要添加或编辑的单词
      * @param sentence 单词所在的句子（可选）
-     * @param prefilledDefinition 预填充的释义（可选，来自划词翻译）
      */
     addOrEditWord(word: string, sentence = '', prefilledDefinition = '') {
         // 检查单词是否已存在
