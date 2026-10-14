@@ -14,3 +14,5 @@ Thumbs.db
 .comments.json
 .keys.txt
 .strings.json
+
+.tools/
