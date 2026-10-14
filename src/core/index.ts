@@ -1,5 +1,5 @@
 /**
- * 核心业务逻辑模块
+ * Core business logic module
  */
 
 export { VocabularyManager } from './vocabulary-manager';

@@ -1,6 +1,6 @@
 import { Plugin, WorkspaceLeaf } from 'obsidian';
 import { Extension } from '@codemirror/state';
-// 使用新的模块化导入
+// Use the new modular imports
 import { HiWordsSettings, VocabularyBookDisplaySettings, WordDefinition } from './src/utils';
 import { DEFAULT_SETTINGS } from './src/settings';
 import { registerReadingModeHighlighter } from './src/ui/reading-mode-highlighter';
@@ -26,25 +26,25 @@ export default class HiWordsPlugin extends Plugin {
     private isSidebarInitialized = false;
 
     async onload() {
-        // 加载设置（快速完成）
+        // Load settings (quick)
         await this.loadSettings();
         
-        // 初始化国际化模块
+        // Initialize the i18n module
         i18n.setApp(this.app);
         
-        // 初始化管理器（不加载数据）
+        // Initialize managers (without loading data)
         this.vocabularyManager = new VocabularyManager(this.app, this.settings);
         
-        // 初始化已掌握服务
+        // Initialize the mastered service
         this.masteredService = new MasteredService(this, this.vocabularyManager);
         
-        // 初始化定义弹出框（作为 Component 需要加载）
+        // Initialize the definition popover (must be loaded as a Component)
         this.definitionPopover = new DefinitionPopover(this);
         this.addChild(this.definitionPopover);
         this.definitionPopover.setVocabularyManager(this.vocabularyManager);
         this.definitionPopover.setMasteredService(this.masteredService);
         
-        // 注册侧边栏视图
+        // Register the sidebar view
         this.registerView(
             SIDEBAR_VIEW_TYPE,
             (leaf) => new HiWordsSidebarView(leaf, this)
@@ -55,29 +55,29 @@ export default class HiWordsPlugin extends Plugin {
             (leaf) => new HiWordsLibraryView(leaf, this)
         );
         
-        // 注册编辑器扩展
+        // Register editor extensions
         this.setupEditorExtensions();
         
-        // 注册命令
+        // Register commands
         this.registerCommands();
         
-        // 注册事件
+        // Register events
         this.registerEvents();
 
-        // 注册阅读模式（Markdown）后处理器，实现阅读模式高亮
+        // Register the reading-mode (Markdown) postprocessor for reading-mode highlighting
         registerReadingModeHighlighter(this);
         
-        // 注册 PDF 高亮功能
+        // Register the PDF highlighting feature
         registerPDFHighlighter(this);
         
-        // 添加设置页面
+        // Add the settings page
         this.addSettingTab(new HiWordsSettingTab(this.app, this));
         
-        // 初始化侧边栏
+        // Initialize the sidebar
         this.initializeSidebar();
         
-        // 延迟加载生词本（在布局准备好后）
-        // 这样可以加快插件启动速度，避免阻塞 Obsidian 启动
+        // Lazy-load word books (after layout is ready)
+        // This speeds up plugin startup and avoids blocking Obsidian launch
         this.app.workspace.onLayoutReady(() => {
             void (async () => {
                 const needsMasteredMigration = (this.settings.masteredMigrationVersion ?? 0) < 1;
@@ -94,11 +94,11 @@ export default class HiWordsPlugin extends Plugin {
     }
 
     /**
-     * 设置编辑器扩展
-     * 注意: 扩展始终注册,但会在 WordHighlighter 内部检查 enableAutoHighlight 设置
+     * Set up editor extensions
+     * Note: the extension is always registered, but WordHighlighter checks the enableAutoHighlight setting internally
      */
     private setupEditorExtensions() {
-        // 始终注册扩展,让 WordHighlighter 内部根据设置决定是否高亮
+        // Always register the extension; WordHighlighter decides whether to highlight based on settings
         const extension = createWordHighlighterExtension(
             this.vocabularyManager,
             (filePath) => shouldHighlightFile(filePath, this.settings)
@@ -108,45 +108,45 @@ export default class HiWordsPlugin extends Plugin {
     }
 
     /**
-     * 注册命令（委托给命令管理器）
+     * Register commands (delegated to the command manager)
      */
     private registerCommands() {
         registerCommands(this);
     }
 
     /**
-     * 注册事件（委托给事件管理器）
+     * Register events (delegated to the event manager)
      */
     private registerEvents() {
         registerEvents(this);
     }
 
     /**
-     * 检查文件是否应该被高亮（包装方法）
+     * Check whether a file should be highlighted (wrapper method)
      */
     shouldHighlightFile(filePath: string): boolean {
         return shouldHighlightFile(filePath, this.settings);
     }
 
     /**
-     * 刷新高亮器
+     * Refresh highlighters
      */
     refreshHighlighter() {
-        // 始终刷新高亮器,让 WordHighlighter 内部根据设置决定是否高亮
+        // Always refresh highlighters; WordHighlighter decides whether to highlight based on settings
         highlighterManager.refreshAll();
         
-        // 刷新阅读模式（只更新可见区域）
+        // Refresh reading mode (updates only visible areas)
         const hooks = this as HiWordsPlugin & HiWordsRefreshHooks;
         if (hooks._refreshReadingModeHighlighter) {
             hooks._refreshReadingModeHighlighter();
         }
         
-        // 刷新 PDF 模式（只更新可见区域）
+        // Refresh PDF mode (updates only visible areas)
         if (hooks._refreshPDFHighlighter) {
             hooks._refreshPDFHighlighter();
         }
         
-        // 刷新侧边栏视图（通过 API 获取）
+        // Refresh the sidebar view (obtained via API)
         const leaves = this.app.workspace.getLeavesOfType(SIDEBAR_VIEW_TYPE);
         leaves.forEach(leaf => {
             if (leaf.view instanceof HiWordsSidebarView) {
@@ -165,19 +165,19 @@ export default class HiWordsPlugin extends Plugin {
     }
 
     /**
-     * 初始化侧边栏
+     * Initialize the sidebar
      */
     private initializeSidebar() {
         if (this.isSidebarInitialized) return;
         
-        // 只注册视图，不自动打开
+        // Only register the view; do not open it automatically
         this.app.workspace.onLayoutReady(() => {
             this.isSidebarInitialized = true;
         });
     }
 
     /**
-     * 激活侧边栏视图
+     * Activate the sidebar view
      */
     async activateSidebarView() {
         const { workspace } = this.app;
@@ -186,10 +186,10 @@ export default class HiWordsPlugin extends Plugin {
         const leaves = workspace.getLeavesOfType(SIDEBAR_VIEW_TYPE);
         
         if (leaves.length > 0) {
-            // 如果已经存在，就激活它
+            // If it already exists, activate it
             leaf = leaves[0];
         } else {
-            // 否则创建新的侧边栏视图
+            // Otherwise create a new sidebar view
             leaf = workspace.getRightLeaf(false);
             if (leaf) {
                 await leaf.setViewState({ type: SIDEBAR_VIEW_TYPE, active: true });
@@ -235,12 +235,12 @@ export default class HiWordsPlugin extends Plugin {
     }
 
     /**
-     * 加载设置
+     * Load settings
      */
     async loadSettings() {
         const loaded = (await this.loadData()) as Partial<HiWordsSettings> | null;
 
-        // 迁移：彻底移除已废弃的 AI 相关设置（本插件现已 100% 离线）
+        // Migration: fully remove deprecated AI-related settings (this plugin is now 100% offline)
         if (loaded) {
             let removed = false;
             const deprecatedKeys = [
@@ -267,7 +267,7 @@ export default class HiWordsPlugin extends Plugin {
     }
 
     /**
-     * 保存设置
+     * Save settings
      */
     async saveSettings() {
         await this.saveData(this.settings);
@@ -276,20 +276,20 @@ export default class HiWordsPlugin extends Plugin {
     }
 
     /**
-     * 添加或编辑单词
-     * 检查单词是否已存在，如果存在则打开编辑模式，否则打开添加模式
-     * @param word 要添加或编辑的单词
-     * @param sentence 单词所在的句子（可选）
+     * Add or edit a word
+     * Check whether the word already exists; if so open edit mode, otherwise open add mode
+     * @param word the word to add or edit
+     * @param sentence the sentence containing the word (optional)
      */
     addOrEditWord(word: string, sentence = '', prefilledDefinition = '') {
-        // 检查单词是否已存在
+        // Check whether the word already exists
         const existingDefinition = this.vocabularyManager.getDefinition(word);
         
         if (existingDefinition && !existingDefinition.source.endsWith('.hiwords')) {
-            // 用户 Canvas 单词本中的词条可以直接编辑
+            // Entries in user Canvas word books can be edited directly
             new AddWordModal(this.app, this, word, sentence, true).open();
         } else {
-            // 官方 .hiwords 词典保持只读；右键添加时预填官方释义到 Canvas 添加表单
+            // Official .hiwords dictionaries stay read-only; right-click add prefills the official definition into the Canvas add form
             const definition = prefilledDefinition || this.getPrefilledDefinition(existingDefinition);
             new AddWordModal(this.app, this, word, sentence, false, definition).open();
         }
@@ -306,18 +306,18 @@ export default class HiWordsPlugin extends Plugin {
     }
 
     /**
-     * 卸载插件
+     * Unload the plugin
      */
     onunload() {
-        // definitionPopover 作为子组件会自动卸载
+        // definitionPopover is unloaded automatically as a child component
         this.vocabularyManager.clear();
-        // 清理增量更新相关资源
+        // Clean up incremental-update resources
         if (this.vocabularyManager.destroy) {
             this.vocabularyManager.destroy();
         }
-        // 清理全局高亮器管理器
+        // Clean up the global highlighter manager
         highlighterManager.clear();
-        // 清理 PDF 高亮器资源
+        // Clean up PDF highlighter resources
         cleanupPDFHighlighter(this);
     }
 }

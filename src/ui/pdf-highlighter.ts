@@ -26,8 +26,8 @@ function isHTMLElement(value: unknown): value is HTMLElement {
 }
 
 /**
- * 在 PDF 视图中注册单词高亮功能
- * 通过监听 PDF 文本层的渲染，实现对 PDF 内容的单词高亮
+ * Register word highlighting in PDF views
+ * Highlights words in PDF content by observing text-layer rendering
  */
 export function registerPDFHighlighter(plugin: PDFHighlighterPlugin): void {
   const processedTextLayers = new WeakSet<HTMLElement>();
@@ -82,10 +82,10 @@ export function registerPDFHighlighter(plugin: PDFHighlighterPlugin): void {
   });
 
   /**
-   * 处理 PDF 文本层高亮
+   * Handle PDF text-layer highlighting
    */
   const processPDFTextLayer = (textLayer: HTMLElement, trie: Trie<WordDefinition>) => {
-    // 避免重复处理同一个文本层
+    // Avoid processing the same text layer twice
     if (processedTextLayers.has(textLayer)) {
       return;
     }
@@ -95,7 +95,7 @@ export function registerPDFHighlighter(plugin: PDFHighlighterPlugin): void {
       observePDFTextLayer(textLayer);
       highlightPDFTextSpans(textLayer, trie, plugin.settings.highlightStyle || 'underline');
     } catch (error) {
-      console.error('PDF 文本层高亮处理失败:', error);
+      console.error('PDF text layer highlight processing failed:', error);
     }
   };
 
@@ -111,7 +111,7 @@ export function registerPDFHighlighter(plugin: PDFHighlighterPlugin): void {
   };
 
   /**
-   * 防抖处理 PDF 高亮更新
+   * Debounce PDF highlight updates
    */
   const debouncedProcessPDF = () => {
     if (debounceTimer) {
@@ -121,7 +121,7 @@ export function registerPDFHighlighter(plugin: PDFHighlighterPlugin): void {
     debounceTimer = window.setTimeout(() => {
       if (!plugin.settings.enableAutoHighlight) return;
       
-      // 获取当前活动文件
+      // Get the current active file
       const activeFile = plugin.app.workspace.getActiveFile();
       if (activeFile && !plugin.shouldHighlightFile(activeFile.path)) {
         return;
@@ -129,10 +129,10 @@ export function registerPDFHighlighter(plugin: PDFHighlighterPlugin): void {
       
       const trie = buildTrieFromVocabulary(plugin.vocabularyManager);
       
-      // 查找所有 PDF 文本层
+      // Find all PDF text layers
       const textLayers = activeDocument.querySelectorAll('.textLayer');
       textLayers.forEach((textLayer) => {
-        // 检查是否在 PDF 视图中
+        // Check whether we are in a PDF view
         const pdfContainer = textLayer.closest('.pdf-container, .mod-pdf');
         if (pdfContainer) {
           processPDFTextLayer(textLayer as HTMLElement, trie);
@@ -144,7 +144,7 @@ export function registerPDFHighlighter(plugin: PDFHighlighterPlugin): void {
   };
 
   /**
-   * 监听 PDF 视图变化
+   * Listen for PDF view changes
    */
   const setupPDFObserver = () => {
     const observer = new MutationObserver((mutations) => {
@@ -161,18 +161,18 @@ export function registerPDFHighlighter(plugin: PDFHighlighterPlugin): void {
           shouldRefresh = true;
         }
 
-        // 检查新增的节点
+        // Inspect newly added nodes
         mutation.addedNodes.forEach((node) => {
           if (node.nodeType === Node.ELEMENT_NODE) {
             const element = node as HTMLElement;
             
-            // 检测 PDF 文本层
+            // Detect PDF text layers
             if (element.classList.contains('textLayer') || 
                 element.querySelector('.textLayer')) {
               shouldProcess = true;
             }
             
-            // 检测 PDF 页面容器
+            // Detect PDF page containers
             if (element.classList.contains('page') && 
                 element.closest('.pdf-container, .mod-pdf')) {
               shouldProcess = true;
@@ -202,11 +202,11 @@ export function registerPDFHighlighter(plugin: PDFHighlighterPlugin): void {
   };
 
   /**
-   * 监听工作区布局变化
+   * Listen for workspace layout changes
    */
   plugin.registerEvent(
     plugin.app.workspace.on('layout-change', () => {
-      // 延迟处理，确保 PDF 视图完全加载
+      // Process with a delay so the PDF view finishes loading
       window.setTimeout(() => {
         refreshPDFSoon();
       }, 500);
@@ -217,12 +217,12 @@ export function registerPDFHighlighter(plugin: PDFHighlighterPlugin): void {
   window.addEventListener('scroll', handleWindowScroll, true);
 
   /**
-   * 监听活动叶子变化
+   * Listen for active-leaf changes
    */
   plugin.registerEvent(
     plugin.app.workspace.on('active-leaf-change', (leaf: WorkspaceLeaf | null) => {
       if (leaf?.view?.getViewType() === 'pdf') {
-        // 当切换到 PDF 视图时，延迟处理高亮
+        // When switching to a PDF view, process highlights with a delay
         window.setTimeout(() => {
           debouncedProcessPDF();
         }, 1000);
@@ -231,7 +231,7 @@ export function registerPDFHighlighter(plugin: PDFHighlighterPlugin): void {
   );
 
   /**
-   * 监听文件打开事件
+   * Listen for file-open events
    */
   plugin.registerEvent(
     plugin.app.workspace.on('file-open', (file: TFile | null) => {
@@ -243,15 +243,15 @@ export function registerPDFHighlighter(plugin: PDFHighlighterPlugin): void {
     })
   );
 
-  // 设置 DOM 观察者
+  // Set up the DOM observer
   const observer = setupPDFObserver();
 
-  // 初始处理已存在的 PDF 视图
+  // Initially process existing PDF views
   window.setTimeout(() => {
     debouncedProcessPDF();
   }, 1000);
 
-  // 清理函数（如果需要的话）
+  // Cleanup function (if needed)
   const cleanup = () => {
     if (debounceTimer) {
       window.clearTimeout(debounceTimer);
@@ -267,17 +267,17 @@ export function registerPDFHighlighter(plugin: PDFHighlighterPlugin): void {
     clearAllPDFHighlights();
   };
 
-  // 将清理函数存储到插件实例上（可选）
+  // Store the cleanup function on the plugin instance (optional)
   plugin._pdfHighlighterCleanup = cleanup;
   
-  // 导出刷新函数到插件实例
+  // Export the refresh function onto the plugin instance
   plugin._refreshPDFHighlighter = () => {
     refreshVisiblePDFPages(plugin, processedTextLayers);
   };
 }
 
 /**
- * 清除 PDF 文本层中的所有高亮标记
+ * Remove all highlight marks in the PDF text layer
  */
 function clearPDFHighlights(textLayer: HTMLElement): void {
   textLayer.querySelectorAll('.hi-words-pdf-highlight').forEach(highlight => highlight.remove());
@@ -289,7 +289,7 @@ function clearAllPDFHighlights(): void {
 }
 
 /**
- * 高亮 PDF 文本层中的所有文本 span
+ * Highlight all text spans in the PDF text layer
  */
 function highlightPDFTextSpans(textLayer: HTMLElement, trie: Trie<WordDefinition>, highlightStyle: string): void {
   bindPDFOverlayHover(textLayer);
@@ -310,7 +310,7 @@ function highlightPDFTextSpans(textLayer: HTMLElement, trie: Trie<WordDefinition
 
     if (!matches || matches.length === 0) return;
 
-    // 处理匹配结果，避免重叠
+    // Process matches to avoid overlaps
     matches.sort((a, b) => a.from - b.from || (b.to - b.from) - (a.to - a.from));
     const filtered: typeof matches = [];
     let end = 0;
@@ -436,7 +436,7 @@ function bindPDFOverlayHover(textLayer: HTMLElement): void {
 }
 
 /**
- * 刷新可见区域的 PDF 高亮
+ * Refresh PDF highlights in the visible area
  */
 function refreshVisiblePDFPages(
   plugin: PDFHighlighterPlugin,
@@ -448,38 +448,38 @@ function refreshVisiblePDFPages(
   }
   
   try {
-    // 重新构建 Trie
+    // Rebuild the Trie
     const trie = buildTrieFromVocabulary(plugin.vocabularyManager);
     
-    // 查找所有 PDF 文本层
+    // Find all PDF text layers
     const textLayers = activeDocument.querySelectorAll('.textLayer');
     
     textLayers.forEach(textLayer => {
       const htmlTextLayer = textLayer as HTMLElement;
       
-      // 检查是否在 PDF 视图中
+      // Check whether we are in a PDF view
       const pdfContainer = htmlTextLayer.closest('.pdf-container, .mod-pdf');
       if (!pdfContainer) return;
       
-      // 只处理可见的文本层
+      // Process only visible text layers
       if (!isElementVisible(htmlTextLayer)) return;
       
-      // 清除该文本层的已处理标记
+      // Clear the processed flag on this text layer
       processedTextLayers.delete(htmlTextLayer);
       
-      // 重新高亮
+      // Re-highlight
       highlightPDFTextSpans(htmlTextLayer, trie, plugin.settings.highlightStyle || 'underline');
       
-      // 标记为已处理
+      // Mark as processed
       processedTextLayers.add(htmlTextLayer);
     });
   } catch (error) {
-    console.error('刷新 PDF 高亮失败:', error);
+    console.error('Failed to refresh PDF highlights:', error);
   }
 }
 
 /**
- * 清理 PDF 高亮器资源
+ * Clean up PDF highlighter resources
  */
 export function cleanupPDFHighlighter(plugin: PDFHighlighterPlugin): void {
   if (plugin._pdfHighlighterCleanup) {

@@ -2,51 +2,51 @@ import type { HiWordsSettings, WordDefinition } from './index';
 import { Trie } from './trie';
 import type { VocabularyManager } from '../core';
 
-// ==================== 文件高亮判断 ====================
+// ==================== File highlight decision ====================
 
 /**
- * 检查文件是否应该被高亮
- * @param filePath 文件路径
- * @param settings 插件设置
- * @returns 是否应该高亮该文件
+ * Check whether a file should be highlighted
+ * @param filePath the file path
+ * @param settings the plugin settings
+ * @returns whether the file should be highlighted
  */
 export function shouldHighlightFile(filePath: string, settings: HiWordsSettings): boolean {
     const mode = settings.highlightMode || 'all';
     
-    // 模式1：全部高亮
+    // Mode 1: highlight everything
     if (mode === 'all') {
         return true;
     }
     
-    // 解析路径列表（逗号分隔，去除空格）
+    // Parse the path list (comma-separated, trimmed)
     const pathsStr = settings.highlightPaths || '';
     const paths = pathsStr
         .split(',')
         .map(p => p.trim())
         .filter(p => p.length > 0);
     
-    // 如果路径列表为空
+    // If the path list is empty
     if (paths.length === 0) {
-        // 排除模式下空列表=全部高亮，包含模式下空列表=全不高亮
+        // In exclude mode an empty list = highlight all; in include mode an empty list = highlight none
         return mode === 'exclude';
     }
     
-    // 标准化当前文件路径
+    // Normalize the current file path
     const normalizedFile = filePath.replace(/^\/+|\/+$/g, '');
     
-    // 检查文件路径是否匹配任何规则
+    // Check whether the file path matches any rule
     const isMatched = paths.some(path => {
         const normalizedPath = path.replace(/^\/+|\/+$/g, '');
         return normalizedFile === normalizedPath || 
                normalizedFile.startsWith(normalizedPath + '/');
     });
     
-    // 模式2：排除模式 - 匹配到则不高亮
+    // Mode 2: exclude mode - matched paths are not highlighted
     if (mode === 'exclude') {
         return !isMatched;
     }
     
-    // 模式3：仅指定路径 - 匹配到才高亮
+    // Mode 3: include mode - only matched paths are highlighted
     if (mode === 'include') {
         return isMatched;
     }
@@ -54,17 +54,17 @@ export function shouldHighlightFile(filePath: string, settings: HiWordsSettings)
     return true;
 }
 
-// ==================== DOM 操作和视口检测 ====================
+// ==================== DOM operations and viewport detection ====================
 
 /**
- * 检查元素是否在视口中可见
+ * Check whether an element is visible in the viewport
  */
 export function isElementVisible(element: HTMLElement): boolean {
     const rect = element.getBoundingClientRect();
     const windowHeight = window.innerHeight || activeDocument.documentElement.clientHeight;
     const windowWidth = window.innerWidth || activeDocument.documentElement.clientWidth;
     
-    // 元素至少有一部分在视口内
+    // The element is at least partially within the viewport
     return (
         rect.bottom > 0 &&
         rect.right > 0 &&
@@ -74,7 +74,7 @@ export function isElementVisible(element: HTMLElement): boolean {
 }
 
 /**
- * 检查容器是否在主编辑器中（排除侧边栏、弹出框等）
+ * Check whether the container is in the main editor (excludes sidebars, popovers, etc.)
  */
 export function isInMainEditor(element: HTMLElement): boolean {
     return !element.closest('.workspace-leaf-content[data-type="hover-editor"]') &&
@@ -92,24 +92,24 @@ export function isInMainEditor(element: HTMLElement): boolean {
 }
 
 /**
- * 清除元素中的所有高亮标记
+ * Remove all highlight marks inside the element
  */
 export function clearHighlights(element: HTMLElement): void {
     const highlights = element.querySelectorAll('.hi-words-highlight');
     highlights.forEach(highlight => {
-        // 将高亮元素替换为纯文本
+        // Replace highlighted elements with plain text
         const textNode = activeDocument.createTextNode(highlight.textContent || '');
         highlight.parentNode?.replaceChild(textNode, highlight);
     });
     
-    // 合并相邻的文本节点
+    // Merge adjacent text nodes
     element.normalize();
 }
 
-// ==================== Trie 构建 ====================
+// ==================== Trie construction ====================
 
 /**
- * 构建包含所有单词的 Trie 树
+ * Build a Trie containing all words
  */
 export function buildTrieFromVocabulary(vocabularyManager: VocabularyManager): Trie<WordDefinition> {
     const trie = new Trie<WordDefinition>();

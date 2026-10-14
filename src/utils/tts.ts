@@ -1,4 +1,4 @@
-// 简单的 TTS 工具：根据模板生成 URL 并播放
+// Simple TTS utility: build a URL from the template and play it
 import { normalizePath } from 'obsidian';
 import type HiWordsPlugin from '../../main';
 import type { WordDefinition } from './types';

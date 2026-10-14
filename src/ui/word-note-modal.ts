@@ -40,7 +40,7 @@ export class WordNoteModal extends Modal {
             setIcon(deleteButton, 'trash');
             deleteButton.onclick = () => {
                 void this.deleteNote().catch(error => {
-                    console.error('HiWords 删除备注失败:', error);
+                    console.error('HiWords failed to delete note:', error);
                     new Notice(t('sidebar.note_delete_failed'));
                 });
             };
@@ -53,7 +53,7 @@ export class WordNoteModal extends Modal {
         const save = rightButtons.createEl('button', { text: t('modals.save_button'), cls: 'mod-cta' });
         save.onclick = () => {
             void this.saveNote(textarea.value.trim(), bookSelect?.value).catch(error => {
-                console.error('HiWords 保存备注失败:', error);
+                console.error('HiWords failed to save note:', error);
                 new Notice(t('sidebar.note_save_failed'));
             });
         };

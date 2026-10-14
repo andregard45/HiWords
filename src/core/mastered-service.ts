@@ -1,6 +1,6 @@
 /**
- * 已掌握单词服务
- * 负责处理单词的已掌握状态管理，包括标记、取消标记、状态同步等
+ * Mastered-words service
+ * Manages mastered state of words: marking, unmarking, state synchronization, etc.
  */
 
 import { Notice } from 'obsidian';
@@ -21,18 +21,18 @@ export class MasteredService {
     updateSettings() {}
 
     /**
-     * 检查已掌握功能是否启用
+     * Check whether the mastered feature is enabled
      */
     get isEnabled(): boolean {
         return this.plugin.settings.enableMasteredFeature;
     }
 
     /**
-     * 标记单词为已掌握
-     * @param bookPath 生词本路径
-     * @param nodeId 节点 ID
-     * @param word 单词文本
-     * @returns 操作是否成功
+     * Mark a word as mastered
+     * @param bookPath the word book path
+     * @param nodeId the node ID
+     * @param word the word text
+     * @returns whether the operation succeeded
      */
     async markWordAsMastered(bookPath: string, nodeId: string, word: string): Promise<boolean> {
         if (!this.isEnabled) {
@@ -55,18 +55,18 @@ export class MasteredService {
 
             return true;
         } catch (error) {
-            console.error('标记已掌握失败:', error);
+            console.error('Failed to mark as mastered:', error);
             new Notice(t('notices.mark_mastered_failed'));
             return false;
         }
     }
 
     /**
-     * 取消单词的已掌握标记
-     * @param bookPath 生词本路径
-     * @param nodeId 节点 ID
-     * @param word 单词文本
-     * @returns 操作是否成功
+     * Unmark a word as mastered
+     * @param bookPath the word book path
+     * @param nodeId the node ID
+     * @param word the word text
+     * @returns whether the operation succeeded
      */
     async unmarkWordAsMastered(bookPath: string, nodeId: string, word: string): Promise<boolean> {
         if (!this.isEnabled) {
@@ -89,17 +89,17 @@ export class MasteredService {
 
             return true;
         } catch (error) {
-            console.error('取消已掌握标记失败:', error);
+            console.error('Failed to unmark as mastered:', error);
             new Notice(t('notices.unmark_mastered_failed'));
             return false;
         }
     }
 
     /**
-     * 检查单词是否已掌握
-     * @param bookPath 生词本路径
-     * @param nodeId 节点 ID
-     * @returns 是否已掌握
+     * Check whether a word is mastered
+     * @param bookPath the word book path
+     * @param nodeId the node ID
+     * @returns whether it is mastered
      */
     async isWordMastered(bookPath: string, nodeId: string): Promise<boolean> {
         if (!this.isEnabled) return false;
@@ -108,15 +108,15 @@ export class MasteredService {
             const wordDef = await this.vocabularyManager.getWordDefinitionByNodeId(bookPath, nodeId);
             return wordDef?.mastered === true;
         } catch (error) {
-            console.error('检查单词掌握状态失败:', error);
+            console.error('Failed to check word mastered state:', error);
             return false;
         }
     }
 
     /**
-     * 获取已掌握的单词列表
-     * @param bookPath 生词本路径（可选，如果不提供则返回所有生词本的已掌握单词）
-     * @returns 已掌握的单词定义数组
+     * Get the list of mastered words
+     * @param bookPath optional word book path; if omitted, returns mastered words from all books
+     * @returns array of mastered word definitions
      */
     async getMasteredWords(bookPath?: string) {
         if (!this.isEnabled) return [];
@@ -125,23 +125,23 @@ export class MasteredService {
             const allWords = await this.vocabularyManager.getAllWordDefinitions();
             
             return allWords.filter(wordDef => {
-                // 过滤已掌握的单词
+                // Filter mastered words
                 if (!wordDef.mastered) return false;
                 
-                // 如果指定了生词本路径，只返回该生词本的单词
+                // If a book path is given, return only that book's words
                 if (bookPath && wordDef.source !== bookPath) return false;
                 
                 return true;
             });
         } catch (error) {
-            console.error('获取已掌握单词列表失败:', error);
+            console.error('Failed to get mastered word list:', error);
             return [];
         }
     }
 
     /**
-     * 获取已掌握单词的统计信息
-     * @returns 统计信息对象
+     * Get mastered-word statistics
+     * @returns the statistics object
      */
     async getMasteredStats() {
         if (!this.isEnabled) {
@@ -157,7 +157,7 @@ export class MasteredService {
             const allWords = await this.vocabularyManager.getAllWordDefinitions();
             const masteredWords = allWords.filter(w => w.mastered);
             
-            // 按生词本分组统计
+            // Group statistics by word book
             const byBook: { [bookPath: string]: { mastered: number, total: number } } = {};
             
             allWords.forEach(word => {
@@ -177,7 +177,7 @@ export class MasteredService {
                 byBook
             };
         } catch (error) {
-            console.error('获取已掌握统计信息失败:', error);
+            console.error('Failed to get mastered statistics:', error);
             return {
                 totalMastered: 0,
                 totalWords: 0,
@@ -188,9 +188,9 @@ export class MasteredService {
     }
 
     /**
-     * 批量标记多个单词为已掌握
-     * @param operations 操作数组，每个操作包含 bookPath, nodeId, word
-     * @returns 成功操作的数量
+     * Batch-mark multiple words as mastered
+     * @param operations array of operations, each with bookPath, nodeId, word
+     * @returns the number of successful operations
      */
     async batchMarkAsMastered(operations: Array<{ bookPath: string, nodeId: string, word: string }>): Promise<number> {
         if (!this.isEnabled) return 0;

@@ -6,10 +6,10 @@ import fr from './fr';
 import de from './de';
 import ja from './ja';
 
-// 支持的语言
+// Supported languages
 export type SupportedLocale = 'en' | 'zh' | 'es' | 'fr' | 'de' | 'ja';
 
-// 语言包接口
+// Language pack interface
 export interface LanguagePack {
     plugin_name: string;
     settings: {
@@ -213,14 +213,14 @@ export interface LanguagePack {
     };
     // Common action labels used in UI
     actions?: {
-        expand: string;        // 展开
-        collapse: string;      // 收起
-        mark_mastered: string; // 已掌握
-        unmark_mastered: string; // 忘记了（取消已掌握）
+        expand: string;        // expand
+        collapse: string;      // collapse
+        mark_mastered: string; // mark as mastered
+        unmark_mastered: string; // forgot (unmark mastered)
     };
 }
 
-// 语言包集合
+// Language pack collection
 const languagePacks: Record<SupportedLocale, LanguagePack> = {
     en,
     zh,
@@ -231,14 +231,14 @@ const languagePacks: Record<SupportedLocale, LanguagePack> = {
 };
 
 /**
- * 国际化管理类
+ * Internationalization manager class
  */
 export class I18n {
     private static instance: I18n;
     private app: App | null = null;
     
     /**
-     * 获取单例实例
+     * Get singleton instance
      */
     public static getInstance(): I18n {
         if (!I18n.instance) {
@@ -248,20 +248,20 @@ export class I18n {
     }
     
     /**
-     * 设置 Obsidian App 实例
+     * Set the Obsidian App instance
      */
     public setApp(app: App): void {
         this.app = app;
     }
     
     /**
-     * 获取当前语言
+     * Get the current language
      */
     private getCurrentLocale(): SupportedLocale {
-        // 使用 Obsidian 官方 API 获取语言设置 (requires minAppVersion: "1.8.7")
+        // Use the official Obsidian API to get the language setting (requires minAppVersion: "1.8.7")
         const obsidianLocale = getLanguage();
         
-        // 将 Obsidian 语言设置映射到我们支持的语言
+        // Map the Obsidian language setting to our supported languages
         if (obsidianLocale.startsWith('zh')) {
             return 'zh';
         }
@@ -278,14 +278,14 @@ export class I18n {
             return 'ja';
         }
         
-        // 默认返回英文
+        // Default to English
         return 'en';
     }
     
     /**
-     * 获取翻译文本
-     * @param key 翻译键，支持点号分隔的路径，如 'sidebar.title'
-     * @returns 翻译后的文本
+     * Get translated text
+     * @param key Translation key, supports dot-separated paths like 'sidebar.title'
+     * @returns The translated text
      */
     public t(key: string): string {
         const locale = this.getCurrentLocale();
@@ -297,7 +297,7 @@ export class I18n {
             if (typeof result === 'object' && result !== null && k in result) {
                 result = (result as Record<string, unknown>)[k];
             } else {
-                console.warn(`翻译键 ${key} 不存在于 ${locale} 语言包中`);
+                console.warn(`Translation key ${key} does not exist in the ${locale} language pack`);
                 return key;
             }
         }
@@ -306,8 +306,8 @@ export class I18n {
     }
 }
 
-// 导出单例实例
+// Export the singleton instance
 export const i18n = I18n.getInstance();
 
-// 导出翻译函数，方便使用
+// Export the translate function for convenience
 export const t = (key: string): string => i18n.t(key);

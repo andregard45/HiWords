@@ -1,2 +1,18 @@
-*.log
 .env
+.env.local
+*.env.*
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# translation tooling scratch files
+.all_nonascii.json
+.allkeys.txt
+.comments.json
+.keys.txt
+.strings.json
+
+.tools/

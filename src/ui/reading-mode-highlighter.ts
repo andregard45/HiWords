@@ -5,8 +5,8 @@ import type { VocabularyManager } from '../core';
 import { isElementVisible, buildTrieFromVocabulary, clearHighlights, isInMainEditor } from '../utils/highlight-utils';
 
 /**
- * 在阅读模式注册 Markdown 后处理器，高亮匹配的词汇。
- * 通过从 VocabularyManager 构建 Trie，遍历渲染后的 DOM 文本节点并包裹 span.hi-words-highlight。
+ * Register a Markdown postprocessor in reading mode to highlight matched vocabulary.
+ * It builds a Trie from VocabularyManager, walks rendered DOM text nodes and wraps them in span.hi-words-highlight.
  */
 export function registerReadingModeHighlighter(plugin: {
   settings: HiWordsSettings;
@@ -17,7 +17,7 @@ export function registerReadingModeHighlighter(plugin: {
   ) => void;
   _refreshReadingModeHighlighter?: () => void;
 }): void {
-  // 存储处理函数的引用，供外部调用
+  // Store a reference to the processing function for external calls
   let processorFn: ((el: HTMLElement, trie: Trie<WordDefinition>) => void) | null = null;
 
   const EXCLUDE_SELECTOR = [
@@ -32,7 +32,7 @@ export function registerReadingModeHighlighter(plugin: {
     '.cm-inline-code',
     '.internal-embed',
     '.file-embed',
-    '.hi-words-tooltip', // 排除 tooltip 内容
+    '.hi-words-tooltip', // Exclude tooltip content
   ].join(',');
 
   const processElement = (root: HTMLElement, trie: Trie<WordDefinition>) => {
@@ -41,7 +41,7 @@ export function registerReadingModeHighlighter(plugin: {
       NodeFilter.SHOW_TEXT,
       {
         acceptNode: (node: Node) => {
-          // 仅处理可见文本节点，跳过排除元素与已高亮区域
+          // Process only visible text nodes; skip excluded elements and already-highlighted areas
           const parent = node.parentNode?.nodeType === Node.ELEMENT_NODE
             ? node.parentNode as HTMLElement
             : null;
@@ -70,7 +70,7 @@ export function registerReadingModeHighlighter(plugin: {
       const matches = trie.findAllMatches(text);
       if (!matches || matches.length === 0) continue;
 
-      // 左到右、优先更长的非重叠匹配
+      // Left-to-right, preferring longer non-overlapping matches
       matches.sort((a, b) => a.from - b.from || (b.to - b.from) - (a.to - a.from));
       const filtered: typeof matches = [];
       let end = 0;
@@ -109,32 +109,32 @@ export function registerReadingModeHighlighter(plugin: {
     try {
       if (!plugin.settings.enableAutoHighlight) return;
       
-      // 检查当前文件是否应该被高亮
+      // Check whether the current file should be highlighted
       const filePath = ctx.sourcePath;
       if (filePath && !plugin.shouldHighlightFile(filePath)) {
         return;
       }
       
-      // 检查是否在主编辑器的阅读模式中（排除侧边栏、悬停预览等其他容器）
+      // Check whether we are in the main editor's reading mode (excludes sidebars, hover previews, other containers)
       if (!isInMainEditor(el)) return;
       
       const trie = buildTrieFromVocabulary(plugin.vocabularyManager);
-      // 保存处理函数引用
+      // Save the processing function reference
       processorFn = processElement;
       processElement(el, trie);
     } catch (e) {
-      console.error('阅读模式高亮处理失败:', e);
+      console.error('Reading mode highlight processing failed:', e);
     }
   });
 
-  // 导出刷新函数到插件实例
+  // Export the refresh function onto the plugin instance
   plugin._refreshReadingModeHighlighter = () => {
     refreshVisibleReadingMode(plugin, processorFn);
   };
 }
 
 /**
- * 刷新可见区域的阅读模式高亮
+ * Refresh reading-mode highlights in the visible area
  */
 function refreshVisibleReadingMode(
   plugin: {
@@ -147,28 +147,28 @@ function refreshVisibleReadingMode(
   if (!plugin.settings.enableAutoHighlight || !processElement) return;
   
   try {
-    // 重新构建 Trie
+    // Rebuild the Trie
     const trie = buildTrieFromVocabulary(plugin.vocabularyManager);
     
-    // 查找所有阅读模式的容器
+    // Find all reading-mode containers
     const readingContainers = activeDocument.querySelectorAll('.markdown-preview-view .markdown-preview-sizer');
     
     readingContainers.forEach(container => {
       const htmlContainer = container as HTMLElement;
       
-      // 检查容器是否在主编辑器中（排除侧边栏等）
+      // Check whether the container is in the main editor (excludes sidebars, etc.)
       if (!isInMainEditor(htmlContainer)) return;
       
-      // 只处理可见的容器
+      // Process only visible containers
       if (!isElementVisible(htmlContainer)) return;
       
-      // 清除现有高亮
+      // Clear existing highlights
       clearHighlights(htmlContainer);
       
-      // 重新高亮
+      // Re-highlight
       processElement(htmlContainer, trie);
     });
   } catch (error) {
-    console.error('刷新阅读模式高亮失败:', error);
+    console.error('Failed to refresh reading mode highlights:', error);
   }
 }

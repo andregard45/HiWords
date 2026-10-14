@@ -20,50 +20,50 @@ export class CanvasParser {
     }
 
     /**
-     * 去除文本中的 Markdown 格式符号
-     * @param text 要处理的文本
-     * @returns 处理后的文本
+     * Strip Markdown formatting from text
+     * @param text the text to process
+     * @returns the processed text
      */
     private removeMarkdownFormatting(text: string): string {
         if (!text) return text;
         
-        // 去除加粗格式 **text** 或 __text__
+        // Remove bold formatting **text** or __text__
         text = text.replace(/\*\*(.*?)\*\*/g, '$1').replace(/__(.*?)__/g, '$1');
         
-        // 去除斜体格式 *text* 或 _text_
+        // Remove italic formatting *text* or _text_
         text = text.replace(/\*(.*?)\*/g, '$1').replace(/_(.*?)_/g, '$1');
         
-        // 去除行内代码格式 `text`
+        // Remove inline code formatting `text`
         text = text.replace(/`(.*?)`/g, '$1');
         
-        // 去除删除线格式 ~~text~~
+        // Remove strikethrough formatting ~~text~~
         text = text.replace(/~~(.*?)~~/g, '$1');
         
-        // 去除高亮格式 ==text==
+        // Remove highlight formatting ==text==
         text = text.replace(/==(.*?)==/g, '$1');
         
-        // 去除链接格式 [text](url)
+        // Remove link formatting [text](url)
         text = text.replace(/\[(.*?)\]\(.*?\)/g, '$1');
         
         return text.trim();
     }
 
     /**
-     * 去除 Markdown 文本开头的 Frontmatter（YAML）
-     * 仅在文本以 --- 开头时尝试移除首个 frontmatter 块
+     * Remove YAML frontmatter at the start of Markdown text
+     * Only attempt removal when the text starts with ---; removes the first frontmatter block
      */
     private removeFrontmatter(text: string): string {
         if (!text) return text;
-        // 去除 BOM
+        // Strip the BOM
         if (text.charCodeAt(0) === 0xFEFF) {
             text = text.slice(1);
         }
-        // 仅当以 --- 开头时尝试剥离到下一处 --- 为止
+        // Only when starting with ---, strip up to the next ---
         if (text.startsWith('---')) {
             const fmEnd = text.indexOf('\n---');
             if (fmEnd !== -1) {
-                const after = text.slice(fmEnd + 4); // 跳过 "\n---"
-                // 去掉可能紧随其后的一个换行
+                const after = text.slice(fmEnd + 4); // Skip "\n---"
+                // Remove one possibly following newline
                 return after.replace(/^\r?\n/, '');
             }
         }
@@ -71,7 +71,7 @@ export class CanvasParser {
     }
 
     /**
-     * 解析分区内容：使用 --- 分隔，段首 **标题** 作为分区标题
+     * Parse sections: split by ---; a leading **title** becomes the section heading
      */
     private parseSections(content: string): WordSection[] {
         if (!content) return [];
@@ -96,7 +96,7 @@ export class CanvasParser {
             }
 
             sections.push({
-                title: sections.length === 0 ? '释义' : `内容 ${sections.length + 1}`,
+                title: sections.length === 0 ? 'Definition' : `Content ${sections.length + 1}`,
                 content: trimmed,
             });
         }
@@ -105,7 +105,7 @@ export class CanvasParser {
     }
 
     /**
-     * 解析 Canvas 文件，提取词汇定义
+     * Parse a Canvas file and extract word definitions
      */
     async parseCanvasFile(file: TFile, options?: { legacyMasteredDetection?: 'group' | 'color' }): Promise<WordDefinition[]> {
         try {
@@ -113,7 +113,7 @@ export class CanvasParser {
             const canvasData: CanvasData = JSON.parse(content);
             
             const detectionMode = options?.legacyMasteredDetection;
-            // 查找 "Mastered" 分组（当使用分组模式时）
+            // Find the "Mastered" group (when group mode is used)
             const masteredGroup = detectionMode === 'group'
                 ? canvasData.nodes.find(node => 
                     node.type === 'group' && 
@@ -124,7 +124,7 @@ export class CanvasParser {
             const definitions: WordDefinition[] = [];
             
             for (const node of canvasData.nodes) {
-                // 文本节点
+                // Text nodes
                 if (node.type === 'text' && node.text) {
                     const wordDef = this.parseTextNode(node, file.path);
                     if (wordDef) {
@@ -140,7 +140,7 @@ export class CanvasParser {
                         definitions.push(wordDef);
                     }
                 }
-                // 文件节点（Markdown）
+                // File nodes (Markdown)
                 else if (node.type === 'file' && node.file) {
                     const wordDef = await this.parseFileNode(node, file.path);
                     if (wordDef) {
@@ -166,40 +166,40 @@ export class CanvasParser {
     }
 
     /**
-     * 从任意文本内容解析单词、别名和定义
+     * Parse word, aliases and definition from arbitrary text content
      */
     private parseFromText(text: string, node: CanvasNode, sourcePath: string): WordDefinition | null {
         if (!text) return null;
 
-        // 先移除 Frontmatter，再整体修剪
+        // Remove frontmatter first, then trim overall
         text = this.removeFrontmatter(text).trim();
         let word = '';
         const aliases: string[] = [];
         let definition = '';
 
         try {
-            // 分割文本行
+            // Split into lines
             const lines = text.split('\n');
             if (lines.length === 0) return null;
             
-            // 获取第一行作为主词
+            // Take the first line as the headword
             word = lines[0].replace(/^#+\s*/, '').trim();
             
-            // 去除 Markdown 格式符号（加粗、斜体、代码块等）
+            // Strip Markdown formatting (bold, italic, code, etc.)
             word = this.removeMarkdownFormatting(word);
             
             if (!word) return null;
             
-            // 处理别名和定义
+            // Process aliases and definition
             if (lines.length > 1) {
-                // 循环查找斜体别名行
+                // Loop to find italic alias lines
                 let aliasLineIndex = -1;
                 let definitionStartIndex = -1;
-                // 解析别名（第二行开始）
+                // Parse aliases (starting from the second line)
                 for (let i = 1; i < lines.length; i++) {
                     const line = lines[i].trim();
                     
-                    // 检查斜体格式别名 *alias1, alias2, alias3*
+                    // Check for italic-form aliases *alias1, alias2, alias3*
                     if (
                         line.startsWith('*') &&
                         line.endsWith('*') &&
@@ -207,21 +207,21 @@ export class CanvasParser {
                         !line.startsWith('**') &&
                         !line.endsWith('**')
                     ) {
-                        const aliasText = line.slice(1, -1); // 去掉首尾的 *
+                        const aliasText = line.slice(1, -1); // Trim the surrounding *
                         const aliasArray = aliasText.split(',').map(a => a.trim()).filter(a => a);
                         aliases.push(...aliasArray);
                         aliasLineIndex = i;
                     }
-                    // 如果不是别名行且不是空行，则这是定义的开始
+                    // If it is neither an alias line nor blank, the definition starts here
                     else if (line !== '') {
                         definitionStartIndex = i;
                         break;
                     }
                 }
                 
-                // 如果找到了定义的开始，则提取定义
+                // If the definition start was found, extract the definition
                 if (definitionStartIndex > 0 && definitionStartIndex < lines.length) {
-                    // 跳过定义开始的空行
+                    // Skip blank lines at the definition start
                     while (definitionStartIndex < lines.length && lines[definitionStartIndex].trim() === '') {
                         definitionStartIndex++;
                     }
@@ -230,14 +230,14 @@ export class CanvasParser {
                         definition = lines.slice(definitionStartIndex).join('\n').trim();
                     }
                 } else if (aliasLineIndex === -1) {
-                    // 如果没有找到别名行，则所有后续行都是定义
+                    // If no alias line was found, all following lines are the definition
                     definition = lines.slice(1).join('\n').trim();
                 }
             }
 
             if (!word) return null;
 
-            // 解析短语，检测是否为模式短语
+            // Parse the phrase and detect whether it is a pattern phrase
             const phraseInfo = parsePhrase(word);
             const language = this.inferCanvasLanguage(word);
             const type = inferLearningItemType(word, language);
@@ -253,7 +253,7 @@ export class CanvasParser {
             }
             
             const result: WordDefinition = {
-                word: phraseInfo.isPattern ? phraseInfo.original : word.toLowerCase(), // 模式短语保持原样，普通单词转小写
+                word: phraseInfo.isPattern ? phraseInfo.original : word.toLowerCase(), // Pattern phrases keep their case; plain words are lowercased
                 type,
                 language,
                 studyKey,
@@ -272,7 +272,7 @@ export class CanvasParser {
             
             return result;
         } catch (error) {
-            console.error(`解析节点文本时出错: ${formatError(error)}`);
+            console.error(`Error parsing node text: ${formatError(error)}`);
             return null;
         }
     }
@@ -284,8 +284,8 @@ export class CanvasParser {
     }
 
     /**
-     * 解析文本节点，提取单词、别名和定义（包装通用文本解析）
-     * 优化版本：支持主名字换行后的斜体格式作为别名格式
+     * Parse a text node into word, aliases and definition (wraps generic text parsing)
+     * Optimized version: supports italic lines after the headword as aliases
      */
     private parseTextNode(node: CanvasNode, sourcePath: string): WordDefinition | null {
         if (!node.text) return null;
@@ -293,7 +293,7 @@ export class CanvasParser {
     }
 
     /**
-     * 解析文件节点（Markdown），根据配置选择解析模式
+     * Parse a file node (Markdown) using the configured parsing mode
      */
     private async parseFileNode(node: CanvasNode, sourcePath: string): Promise<WordDefinition | null> {
         try {
@@ -305,9 +305,9 @@ export class CanvasParser {
             if (abs.extension !== 'md') return null;
 
             const mode = this.settings?.fileNodeParseMode || 'filename-with-alias';
-            const fileName = abs.basename; // 文件名（不含扩展名）
+            const fileName = abs.basename; // File name (without extension)
 
-            // 模式 1：仅使用文件名
+            // Mode 1: file name only
             if (mode === 'filename') {
                 const language = this.inferCanvasLanguage(fileName);
                 const type = inferLearningItemType(fileName, language);
@@ -325,25 +325,25 @@ export class CanvasParser {
                 };
             }
 
-            // 读取文件内容
+            // Read the file content
             const md = await this.app.vault.cachedRead(abs);
 
-            // 模式 2：仅使用文件内容（当前行为）
+            // Mode 2: file content only (current behavior)
             if (mode === 'content') {
                 return this.parseFromText(md, node, sourcePath);
             }
 
-            // 模式 3：文件名作为主词，内容第一行作为别名（默认）
+            // Mode 3: file name as headword, first content line as alias (default)
             if (mode === 'filename-with-alias') {
                 const parsed = this.parseFromText(md, node, sourcePath);
                 
                 if (parsed && parsed.word) {
-                    // 将原来的 word 作为别名
+                    // Use the original word as an alias
                     const originalWord = parsed.word;
                     const existingAliases = parsed.aliases || [];
                     const newAliases = originalWord !== fileName 
                         ? [originalWord, ...existingAliases]
-                        : existingAliases; // 如果文件名和内容第一行相同，避免重复
+                        : existingAliases; // If the file name equals the first content line, avoid duplication
                     const language = this.inferCanvasLanguage(fileName);
                     const type = inferLearningItemType(fileName, language);
                     
@@ -357,7 +357,7 @@ export class CanvasParser {
                     };
                 }
                 
-                // 如果解析失败（文件为空），至少返回文件名
+                // If parsing fails (empty file), at least return the file name
                 const language = this.inferCanvasLanguage(fileName);
                 const type = inferLearningItemType(fileName, language);
                 return {
@@ -376,56 +376,56 @@ export class CanvasParser {
 
             return null;
         } catch (error) {
-            console.error('解析文件节点失败:', error);
+            console.error('Failed to parse file node:', error);
             return null;
         }
     }
 
     /**
-     * 检查文件是否为 Canvas 文件
+     * Check whether a file is a Canvas file
      */
     static isCanvasFile(file: TFile): boolean {
         return file.extension === 'canvas';
     }
 
     /**
-     * 验证 Canvas 文件格式
+     * Validate the Canvas file format
      */
     async validateCanvasFile(file: TFile): Promise<boolean> {
         try {
             const content = await this.app.vault.cachedRead(file);
             const trimmed = content?.trim() ?? '';
-            // 新建但尚未写入内容的空 Canvas 也视为有效
+            // A newly created empty Canvas counts as valid
             if (trimmed === '') return true;
 
             const data = JSON.parse(trimmed);
-            // 若字段缺失，视为默认空数组也有效
+            // Missing fields default to empty arrays and remain valid
             const nodesOk = !('nodes' in data) || Array.isArray(data.nodes);
             const edgesOk = !('edges' in data) || Array.isArray(data.edges);
             return nodesOk && edgesOk;
         } catch {
-            // 解析失败，但既然是 .canvas 文件，允许添加，后续解析将返回空结果
+            // Parsing failed, but since it is a .canvas file adding is allowed; later parsing returns empty results
             return true;
         }
     }
 
     /**
-     * 检查节点是否在指定分组内
-     * @param node 要检查的节点
-     * @param group 分组节点
-     * @returns 是否在分组内
+     * Check whether a node is inside the given group
+     * @param node the node to check
+     * @param group the group node
+     * @returns whether it is inside the group
      */
     public isNodeInGroup(node: CanvasNode, group: CanvasNode): boolean {
-        // 仅使用几何判定，避免与 node.group 字段产生二义性
+        // Use geometry only to avoid ambiguity with the node.group field
         const nodeX = typeof node.x === 'number' ? node.x : 0;
         const nodeY = typeof node.y === 'number' ? node.y : 0;
-        const nodeW = typeof node.width === 'number' ? node.width : 200; // 文本默认宽
-        const nodeH = typeof node.height === 'number' ? node.height : 60; // 文本默认高
+        const nodeW = typeof node.width === 'number' ? node.width : 200; // Default text width
+        const nodeH = typeof node.height === 'number' ? node.height : 60; // Default text height
 
         const groupX = typeof group.x === 'number' ? group.x : 0;
         const groupY = typeof group.y === 'number' ? group.y : 0;
-        const groupW = typeof group.width === 'number' ? group.width : 300; // 分组默认宽
-        const groupH = typeof group.height === 'number' ? group.height : 150; // 分组默认高
+        const groupW = typeof group.width === 'number' ? group.width : 300; // Default group width
+        const groupH = typeof group.height === 'number' ? group.height : 150; // Default group height
 
         const nodeLeft = nodeX;
         const nodeRight = nodeX + nodeW;
