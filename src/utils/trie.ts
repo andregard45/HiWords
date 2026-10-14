@@ -114,10 +114,12 @@ export interface TrieMatch<TPayload = unknown> {
 
 /**
  * Check whether a character is alphanumeric
- * Supports English, Chinese, Japanese, Korean and other characters
+ * Supports English, Greek, Cyrillic, Chinese, Japanese, Korean and other characters
+ * Note: Greek letters (e.g. ὐ in "οὐ") must count as word characters, otherwise
+ * "οὐ" would wrongly match inside longer words like "οὐκ" or "οὐδὲ".
  */
 function isAlphaNumeric(char: string): boolean {
-    return /[a-z0-9\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/iu.test(char);
+    return /[a-z0-9\p{Script=Greek}\p{Script=Cyrillic}\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/iu.test(char);
 }
 
 /**
