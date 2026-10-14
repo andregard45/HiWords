@@ -207,27 +207,6 @@ export interface VocabularyBook {
 // 高亮样式类型
 export type HighlightStyle = 'underline' | 'background' | 'bold' | 'dotted' | 'wavy';
 
-export type AIProvider = 'openai-compatible' | 'anthropic' | 'gemini' | 'custom';
-
-export interface AIServiceSettings {
-    provider: AIProvider;
-    apiUrl: string;
-    apiKey: string;
-    model: string;
-    extraParams: string;
-}
-
-export interface AIDefinitionSettings {
-    enabled: boolean;
-    prompt: string;
-}
-
-export interface SelectionTranslateSettings {
-    enabled: boolean;
-    targetLang: string;
-    prompt: string;
-}
-
 export type LearningItemType = 'word' | 'phrase' | 'concept' | 'term';
 
 export interface StudyProgressItem {
@@ -250,9 +229,6 @@ export interface HiWordsSettings {
     // 发音地址模板（如：https://dict.youdao.com/dictvoice?audio={{word}}&type=2）
     ttsTemplate?: string;
     pronunciationVariant?: 'uk' | 'us';
-    // AI 配置
-    aiService: AIServiceSettings;
-    aiDefinition: AIDefinitionSettings;
     // 自动布局设置（简化版）
     autoLayoutEnabled?: boolean; // 是否启用自动布局（使用固定参数的简单网格）
     // 卡片尺寸设置
@@ -267,8 +243,6 @@ export interface HiWordsSettings {
     enableSectionTabs?: boolean;
     // 侧边栏默认显示模式：详情模式显示完整内容，单词模式仅显示标题行
     sidebarDefaultDisplayMode?: 'detail' | 'word';
-    // 划词翻译配置
-    selectionTranslate: SelectionTranslateSettings;
 }
 
 // 词汇匹配信息

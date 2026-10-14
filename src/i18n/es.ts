@@ -48,19 +48,6 @@ export default {
         pronunciation_variant_desc: "Elige qué acento muestran y reproducen las tarjetas estructuradas",
         pronunciation_uk: "UK",
         pronunciation_us: "US",
-        // AI Dictionary
-        ai_dictionary: "Asistente AI",
-        ai_api_url: "URL de API",
-        ai_api_url_desc: "Punto final de API (detecta automáticamente: OpenAI, Claude, Gemini)",
-        ai_api_key: "Clave API",
-        ai_api_key_desc: "Tu clave de API de AI",
-        ai_model: "Modelo",
-        ai_model_desc: "Nombre del modelo de AI (ej., gpt-4o-mini, deepseek-chat)",
-        ai_prompt: "Prompt personalizado",
-        ai_prompt_desc: "Usar {{word}} y {{sentence}} como marcadores de posición. La AI usará este prompt para generar definiciones",
-        ai_extra_params: "Parámetros extra de la solicitud",
-        ai_extra_params_desc: "Añade parámetros JSON personalizados al cuerpo de la solicitud de IA (avanzado)",
-        ai_extra_params_placeholder: '{\n  "temperature": 0.7,\n  "top_p": 0.9\n}',
         // Auto layout
         auto_layout: "Diseño automático del lienzo",
         enable_auto_layout: "Habilitar diseño automático",
@@ -92,14 +79,6 @@ export default {
         mode_filename: "Solo nombre de archivo",
         mode_content: "Solo contenido de archivo",
         mode_filename_with_alias: "Nombre de archivo como palabra, contenido como alias",
-        // Selection translate settings
-        selection_translate: "Traducción por selección",
-        enable_selection_translate: "Activar traducción por selección",
-        enable_selection_translate_desc: "Mostrar ventana emergente de traducción al seleccionar texto",
-        translate_target_lang: "Idioma de destino",
-        translate_target_lang_desc: "Código del idioma de destino (ej. zh-CN, en, ja)",
-        translate_prompt: "Prompt de traducción",
-        translate_prompt_desc: "Plantilla de prompt para traducción IA. Use {{text}} y {{to}} como marcadores",
     },
 
     // Sidebar
@@ -181,7 +160,6 @@ export default {
 
     // Modals
     modals: {
-        auto_fill_definition: "Definir con AI",
         word_label: "Palabra",
         word_placeholder: "Ingresa la palabra a agregar...",
         definition_label: "Definición",
@@ -273,23 +251,4 @@ export default {
         unmark_mastered: "Desmarcar dominado",
     },
     // Traducción por selección
-    translate: {
-        text_empty: "El texto de traducción no puede estar vacío",
-        translating: "Traduciendo...",
-        failed: "La traducción falló, inténtelo de nuevo",
-        ai_not_configured: "Traducción IA no configurada. Configure la API en los ajustes",
-        invalid_response: "El servicio de traducción devolvió una respuesta no válida",
-    },
-    // Errores del diccionario AI
-    ai_errors: {
-        word_empty: "La palabra no puede estar vacía",
-        api_key_not_configured: "La clave API no está configurada. Por favor, configúrela en los ajustes del plugin",
-        invalid_response: "La API devolvió un formato de respuesta no válido",
-        api_key_invalid: "❌ La clave API no es válida o ha caducado. Por favor, verifique la configuración del plugin",
-        rate_limit: "⏱️ Límite de tasa de API excedido. Por favor, inténtelo de nuevo más tarde",
-        server_error: "🔧 El servicio API no está disponible temporalmente. Por favor, inténtelo de nuevo más tarde",
-        network_error: "🌐 Fallo en la conexión de red. Por favor, verifique su configuración de red",
-        request_failed: "Solicitud al diccionario AI falló",
-        invalid_json_format: "Formato JSON no válido, por favor revise la sintaxis",
-    },
 }

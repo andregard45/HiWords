@@ -47,18 +47,6 @@ export default {
         pronunciation_variant_desc: "Wählen Sie, welchen Akzent strukturierte Karten anzeigen und abspielen",
         pronunciation_uk: "UK",
         pronunciation_us: "US",
-        ai_dictionary: "KI-Assistent",
-        ai_api_url: "API-URL",
-        ai_api_url_desc: "API-Endpunkt (erkennt automatisch: OpenAI, Claude, Gemini)",
-        ai_api_key: "API-Schlüssel",
-        ai_api_key_desc: "Ihr KI-API-Schlüssel",
-        ai_model: "Modell",
-        ai_model_desc: "KI-Modellname (z.B. gpt-4o-mini, deepseek-chat)",
-        ai_prompt: "Benutzerdefinierter Prompt",
-        ai_prompt_desc: "{{word}} und {{sentence}} als Platzhalter verwenden. Die KI wird diesen Prompt verwenden, um Definitionen zu generieren",
-        ai_extra_params: "Zusätzliche Anfrageparameter",
-        ai_extra_params_desc: "Benutzerdefinierte JSON-Parameter zum Anfrage-Body der KI hinzufügen (fortgeschritten)",
-        ai_extra_params_placeholder: '{\n  "temperature": 0.7,\n  "top_p": 0.9\n}',
         // Auto layout
         auto_layout: "Automatisches Canvas-Layout",
         enable_auto_layout: "Automatisches Layout aktivieren",
@@ -90,14 +78,6 @@ export default {
         mode_filename: "Nur Dateiname",
         mode_content: "Nur Dateiinhalt",
         mode_filename_with_alias: "Dateiname als Wort, Inhalt als Alias",
-        // Selection translate settings
-        selection_translate: "Auswahlübersetzung",
-        enable_selection_translate: "Auswahlübersetzung aktivieren",
-        enable_selection_translate_desc: "Übersetzungs-Popup anzeigen, wenn Text ausgewählt wird",
-        translate_target_lang: "Zielsprache",
-        translate_target_lang_desc: "Zielsprachcode (z.B. zh-CN, en, ja)",
-        translate_prompt: "Übersetzungs-Prompt",
-        translate_prompt_desc: "KI-Übersetzungs-Prompt-Vorlage. Verwenden Sie {{text}} und {{to}} als Platzhalter",
     },
 
     // Sidebar
@@ -179,7 +159,6 @@ export default {
 
     // Modals
     modals: {
-        auto_fill_definition: "KI-Definition",
         word_label: "Wort",
         word_placeholder: "Wort eingeben...",
         definition_label: "Definition",
@@ -271,23 +250,5 @@ export default {
         unmark_mastered: "Beherrschung aufheben",
     },
     // Auswahlübersetzung
-    translate: {
-        text_empty: "Der Übersetzungstext darf nicht leer sein",
-        translating: "Übersetzen...",
-        failed: "Übersetzung fehlgeschlagen, bitte erneut versuchen",
-        ai_not_configured: "KI-Übersetzung nicht konfiguriert. Bitte API in den Einstellungen einrichten",
-        invalid_response: "Der Übersetzungsdienst hat eine ungültige Antwort zurückgegeben",
-    },
     // KI-Wörterbuch-Fehler
-    ai_errors: {
-        word_empty: "Das Wort darf nicht leer sein",
-        api_key_not_configured: "API-Schlüssel ist nicht konfiguriert. Bitte in den Plugin-Einstellungen festlegen",
-        invalid_response: "Die API hat ein ungültiges Antwortformat zurückgegeben",
-        api_key_invalid: "❌ API-Schlüssel ist ungültig oder abgelaufen. Bitte überprüfen Sie die Plugin-Einstellungen",
-        rate_limit: "⏱️ API-Ratenlimit überschritten. Bitte versuchen Sie es später erneut",
-        server_error: "🔧 API-Dienst ist vorübergehend nicht verfügbar. Bitte versuchen Sie es später erneut",
-        network_error: "🌐 Netzwerkverbindung fehlgeschlagen. Bitte überprüfen Sie Ihre Netzwerkeinstellungen",
-        request_failed: "KI-Wörterbuch-Anfrage fehlgeschlagen",
-        invalid_json_format: "Ungültiges JSON-Format, bitte prüfen Sie die Syntax",
-    },
 }

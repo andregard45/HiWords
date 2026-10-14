@@ -48,19 +48,6 @@ export default {
         pronunciation_variant_desc: "Choisissez l'accent affiché et lu par les cartes structurées",
         pronunciation_uk: "UK",
         pronunciation_us: "US",
-        // AI Dictionary
-        ai_dictionary: "Assistant IA",
-        ai_api_url: "URL de l'API",
-        ai_api_url_desc: "Point de terminaison de l'API (détecte automatiquement : OpenAI, Claude, Gemini)",
-        ai_api_key: "Clé API",
-        ai_api_key_desc: "Votre clé API IA",
-        ai_model: "Modèle",
-        ai_model_desc: "Nom du modèle IA (ex., gpt-4o-mini, deepseek-chat)",
-        ai_prompt: "Prompt personnalisé",
-        ai_prompt_desc: "Utiliser {{word}} et {{sentence}} comme espaces réservés. L'IA utilisera ce prompt pour générer des définitions",
-        ai_extra_params: "Paramètres supplémentaires de la requête",
-        ai_extra_params_desc: "Ajouter des paramètres JSON personnalisés au corps de la requête IA (avancé)",
-        ai_extra_params_placeholder: '{\n  "temperature": 0.7,\n  "top_p": 0.9\n}',
         // Auto layout
         auto_layout: "Disposition auto du canevas",
         enable_auto_layout: "Activer la disposition automatique",
@@ -92,14 +79,6 @@ export default {
         mode_filename: "Nom de fichier uniquement",
         mode_content: "Contenu de fichier uniquement",
         mode_filename_with_alias: "Nom de fichier comme mot, contenu comme alias",
-        // Selection translate settings
-        selection_translate: "Traduction par sélection",
-        enable_selection_translate: "Activer la traduction par sélection",
-        enable_selection_translate_desc: "Afficher une fenêtre de traduction lors de la sélection de texte",
-        translate_target_lang: "Langue cible",
-        translate_target_lang_desc: "Code de la langue cible (ex. zh-CN, en, ja)",
-        translate_prompt: "Prompt de traduction",
-        translate_prompt_desc: "Modèle de prompt pour la traduction IA. Utilisez {{text}} et {{to}} comme marqueurs",
     },
 
     // Sidebar
@@ -181,7 +160,6 @@ export default {
 
     // Modals
     modals: {
-        auto_fill_definition: "Définir avec IA",
         word_label: "Mot",
         word_placeholder: "Entrez le mot à ajouter...",
         definition_label: "Définition",
@@ -273,23 +251,4 @@ export default {
         unmark_mastered: "Retirer le statut maîtrisé",
     },
     // Traduction par sélection
-    translate: {
-        text_empty: "Le texte de traduction ne peut pas être vide",
-        translating: "Traduction en cours...",
-        failed: "La traduction a échoué, veuillez réessayer",
-        ai_not_configured: "Traduction IA non configurée. Configurez l'API dans les paramètres",
-        invalid_response: "Le service de traduction a renvoyé une réponse non valide",
-    },
-    // Erreurs du dictionnaire IA
-    ai_errors: {
-        word_empty: "Le mot ne peut pas être vide",
-        api_key_not_configured: "La clé API n'est pas configurée. Veuillez la définir dans les paramètres du plugin",
-        invalid_response: "L'API a renvoyé un format de réponse invalide",
-        api_key_invalid: "❌ La clé API est invalide ou expirée. Veuillez vérifier les paramètres du plugin",
-        rate_limit: "⏱️ Limite de débit de l'API dépassée. Veuillez réessayer plus tard",
-        server_error: "🔧 Le service API est temporairement indisponible. Veuillez réessayer plus tard",
-        network_error: "🌐 Échec de la connexion réseau. Veuillez vérifier vos paramètres réseau",
-        request_failed: "La requête au dictionnaire IA a échoué",
-        invalid_json_format: "Format JSON invalide, veuillez vérifier la syntaxe",
-    },
 }

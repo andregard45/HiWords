@@ -55,18 +55,6 @@ export interface LanguagePack {
         pronunciation_variant_desc?: string;
         pronunciation_uk?: string;
         pronunciation_us?: string;
-        // AI Dictionary
-        ai_dictionary?: string;
-        ai_api_url?: string;
-        ai_api_url_desc?: string;
-        ai_api_key?: string;
-        ai_api_key_desc?: string;
-        ai_model?: string;
-        ai_model_desc?: string;
-        ai_prompt?: string;
-        ai_prompt_desc?: string;
-        ai_test_connection?: string;
-        ai_test_connection_desc?: string;
         // Auto layout section
         auto_layout: string;
         enable_auto_layout: string;
@@ -145,12 +133,8 @@ export interface LanguagePack {
         book_added: string;
         book_reloaded: string;
         book_removed: string;
-        testing_ai_connection?: string;
-        ai_connection_success?: string;
-        ai_connection_failed?: string;
     };
     modals: {
-        auto_fill_definition?: string;
         word_label: string;
         word_placeholder: string;
         definition_label: string;
@@ -233,17 +217,6 @@ export interface LanguagePack {
         collapse: string;      // 收起
         mark_mastered: string; // 已掌握
         unmark_mastered: string; // 忘记了（取消已掌握）
-    };
-    // AI dictionary error messages
-    ai_errors?: {
-        word_empty: string;
-        api_key_not_configured: string;
-        invalid_response: string;
-        api_key_invalid: string;
-        rate_limit: string;
-        server_error: string;
-        network_error: string;
-        request_failed: string;
     };
 }
 
