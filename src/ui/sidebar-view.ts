@@ -1,6 +1,6 @@
 import { EventRef, ItemView, WorkspaceLeaf, TFile, MarkdownView, MarkdownRenderer, setIcon, Notice } from 'obsidian';
 import HiWordsPlugin from '../../main';
-import { WordDefinition, mapCanvasColorToCSSVar, getColorWithOpacity, playWordTTS, Trie } from '../utils';
+import { WordDefinition, mapCanvasColorToCSSVar, getColorWithOpacity, Trie } from '../utils';
 import { t } from '../i18n';
 import { findPatternMatches } from '../utils/pattern-matcher';
 import { renderWordCard } from './word-card-renderer';
@@ -482,17 +482,9 @@ export class HiWordsSidebarView extends ItemView {
 
         // 词汇标题
         const wordTitle = card.createEl('div', { cls: 'hi-words-word-title' });
-        const wordTextEl = wordTitle.createEl('span', {
+        wordTitle.createEl('span', {
             text: wordDef.word,
             cls: 'hi-words-word-text'
-        });
-
-        // 点击主词发音
-        wordTextEl.addEventListener('click', (e) => {
-            e.stopPropagation();
-            void playWordTTS(this.plugin, wordDef.word, wordDef).catch(error => {
-                console.error('HiWords 播放发音失败:', error);
-            });
         });
 
         wordTitle.createEl('div', {
@@ -548,8 +540,6 @@ export class HiWordsSidebarView extends ItemView {
             renderWordCard(defContainer, wordDef, {
                 mode: 'sidebar',
                 app: this.app,
-                pronunciationVariant: this.plugin.settings.pronunciationVariant || 'us',
-                onPronunciationClick: (variant) => playWordTTS(this.plugin, wordDef.word, wordDef, variant),
                 display: this.plugin.getVocabularyBookDisplaySettings(wordDef.source),
                 onNoteClick: wordDef.source.endsWith('.hiwords') || wordDef.userNoteSource
                     ? () => this.openNoteModal(wordDef)

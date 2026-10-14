@@ -248,6 +248,8 @@ export default class HiWordsPlugin extends Plugin {
                 'enableAiDefinition', 'enableSelectionTranslate',
                 'aiApiUrl', 'aiApiKey', 'aiModel', 'aiPrompt', 'aiExtraParams',
                 'aiProvider', 'translateTargetLang', 'translatePrompt',
+                // 已废弃的 Youdao TTS 相关设置（本插件 100% 离线，不再联网播放发音）
+                'ttsTemplate', 'pronunciationVariant',
             ];
             const loadedRecord = loaded as Record<string, unknown>;
             for (const key of deprecatedKeys) {
