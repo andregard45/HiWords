@@ -80,6 +80,10 @@ export interface LanguagePack {
         mode_filename?: string;
         mode_content?: string;
         mode_filename_with_alias?: string;
+        // Add-word description template settings
+        add_word_template?: string;
+        add_word_template_desc?: string;
+        add_word_template_placeholder?: string;
     };
     sidebar: {
         title: string;

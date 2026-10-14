@@ -74,6 +74,10 @@ export default {
         mode_filename: "Filename only",
         mode_content: "File content only",
         mode_filename_with_alias: "Filename as word, content as alias",
+        // Add-word description template settings
+        add_word_template: "Description template",
+        add_word_template_desc: "Template prefilled into the Description field when running \"HiWords: Add word\". Placeholders: {word}, {sentence}",
+        add_word_template_placeholder: "e.g.: **{word}**\n\nMeaning:\n\nExample: {sentence}",
     },
 
     // Sidebar
@@ -160,7 +164,7 @@ export default {
     modals: {
         word_label: "Word",
         word_placeholder: "Enter word to add...",
-        definition_label: "Definition",
+        definition_label: "Description",
         book_label: "Vocabulary book",
         select_book: "Select a vocabulary book",
         color_label: "Card color",
@@ -173,7 +177,7 @@ export default {
         color_purple: "Purple",
         aliases_label: "Aliases (optional, comma separated)",
         aliases_placeholder: "e.g.: doing, done, did",
-        definition_placeholder: "Enter word definition...",
+        definition_placeholder: "Enter word description...",
         add_button: "Add",
         save_button: "Save",
         cancel_button: "Cancel",

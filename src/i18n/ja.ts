@@ -72,6 +72,10 @@ export default {
         mode_filename: "ファイル名のみ",
         mode_content: "ファイル内容のみ",
         mode_filename_with_alias: "ファイル名を単語、内容をエイリアスとして",
+        // Add-word description template settings
+        add_word_template: "単語追加時の説明テンプレート",
+        add_word_template_desc: "「HiWords: Add word」実行時に説明フィールドへ自動入力されるテンプレート。プレースホルダー: {word}、{sentence}",
+        add_word_template_placeholder: "例：**{word}**\n\n意味:\n\n例文: {sentence}",
     },
 
     // Sidebar
@@ -155,7 +159,7 @@ export default {
     modals: {
         word_label: "単語",
         word_placeholder: "追加する単語を入力...",
-        definition_label: "定義",
+        definition_label: "説明",
         book_label: "単語帳",
         select_book: "単語帳を選択",
         color_label: "カードの色",
@@ -168,7 +172,7 @@ export default {
         color_purple: "紫",
         aliases_label: "別名（任意、カンマ区切り）",
         aliases_placeholder: "例: doing, done, did",
-        definition_placeholder: "定義を入力...",
+        definition_placeholder: "説明を入力...",
         add_button: "追加",
         save_button: "保存",
         cancel_button: "キャンセル",

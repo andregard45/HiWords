@@ -72,6 +72,10 @@ export default {
         mode_filename: "Nur Dateiname",
         mode_content: "Nur Dateiinhalt",
         mode_filename_with_alias: "Dateiname als Wort, Inhalt als Alias",
+        // Add-word description template settings
+        add_word_template: "Vorlage für Wortbeschreibung",
+        add_word_template_desc: "Vorlage, die beim Befehl \"HiWords: Add word\" automatisch in das Beschreibungsfeld eingefügt wird. Platzhalter: {word}, {sentence}",
+        add_word_template_placeholder: "z. B.: **{word}**\n\nBedeutung:\n\nBeispiel: {sentence}",
     },
 
     // Sidebar
@@ -155,7 +159,7 @@ export default {
     modals: {
         word_label: "Wort",
         word_placeholder: "Wort eingeben...",
-        definition_label: "Definition",
+        definition_label: "Beschreibung",
         book_label: "Wörterbuch",
         select_book: "Wörterbuch auswählen",
         color_label: "Kartenfarbe",
@@ -168,7 +172,7 @@ export default {
         color_purple: "Lila",
         aliases_label: "Aliasse (optional, durch Kommas getrennt)",
         aliases_placeholder: "z. B.: doing, done, did",
-        definition_placeholder: "Definition eingeben...",
+        definition_placeholder: "Beschreibung eingeben...",
         add_button: "Hinzufügen",
         save_button: "Speichern",
         cancel_button: "Abbrechen",

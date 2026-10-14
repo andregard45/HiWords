@@ -233,6 +233,9 @@ export interface HiWordsSettings {
     enableSectionTabs?: boolean;
     // Sidebar default display mode: detail mode shows full content, word mode shows only the title line
     sidebarDefaultDisplayMode?: 'detail' | 'word';
+    // Description template prefilled into the "Description" field of the Add-word modal
+    // Supported placeholders: {word}, {sentence}
+    addWordDescriptionTemplate?: string;
 }
 
 // Vocabulary match information
