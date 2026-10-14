@@ -184,6 +184,8 @@ export default {
         pack_id: "ID",
         pack_samples: "Cartes exemples",
         delete_confirmation: "Êtes-vous sûr de vouloir supprimer le mot \"{0}\" ?\nCette action est irréversible.",
+        delete_button: "Supprimer",
+        confirm_delete_button: "Cliquez à nouveau pour supprimer",
     },
     library: {
         title: "Bibliothèque de vocabulaire",

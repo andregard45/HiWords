@@ -184,6 +184,8 @@ export default {
         pack_id: "ID",
         pack_samples: "サンプルカード",
         delete_confirmation: "単語 \"{0}\" を削除してもよろしいですか？\nこの操作は元に戻せません。",
+        delete_button: "削除",
+        confirm_delete_button: "もう一度クリックすると削除",
     },
     library: {
         title: "単語帳管理",

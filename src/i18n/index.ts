@@ -152,6 +152,8 @@ export interface LanguagePack {
         pack_id?: string;
         pack_samples?: string;
         delete_confirmation: string;
+        delete_button: string;
+        confirm_delete_button: string;
         save_button: string;
     };
     library?: {

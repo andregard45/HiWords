@@ -2506,3 +2506,6 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* Delete button in word edit/note modals uses Obsidian's built-in
+   "mod-warning" class — no custom styling required. */

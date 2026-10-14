@@ -184,6 +184,8 @@ export default {
         pack_id: "ID",
         pack_samples: "Beispielkarten",
         delete_confirmation: "Möchten Sie das Wort \"{0}\" wirklich löschen?\nDiese Aktion kann nicht rückgängig gemacht werden.",
+        delete_button: "Löschen",
+        confirm_delete_button: "Zum Bestätigen erneut klicken",
     },
     library: {
         title: "Vokabelbibliothek",
