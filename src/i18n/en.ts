@@ -189,6 +189,8 @@ export default {
         pack_id: "ID",
         pack_samples: "Sample cards",
         delete_confirmation: "Are you sure you want to delete the word \"{0}\"?\nThis action cannot be undone.",
+        delete_button: "Delete",
+        confirm_delete_button: "Click again to delete",
     },
     library: {
         title: "Vocabulary library",

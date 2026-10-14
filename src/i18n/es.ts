@@ -184,6 +184,8 @@ export default {
         pack_id: "ID",
         pack_samples: "Tarjetas de ejemplo",
         delete_confirmation: "¿Seguro que deseas eliminar la palabra \"{0}\"?\nEsta acción no se puede deshacer.",
+        delete_button: "Eliminar",
+        confirm_delete_button: "Haz clic de nuevo para eliminar",
     },
     library: {
         title: "Biblioteca de vocabulario",

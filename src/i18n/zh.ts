@@ -190,6 +190,8 @@ export default {
         pack_id: "ID",
         pack_samples: "样例词卡",
         delete_confirmation: "确定要删除词汇 \"{0}\" 吗？\n此操作不可撤销。",
+        delete_button: "删除",
+        confirm_delete_button: "再次点击以确认删除",
     },
     library: {
         title: "词库管理中心",

@@ -206,27 +206,68 @@ export class AddWordModal extends Modal {
         const leftButtonGroup = buttonContainer.createDiv({ cls: 'hiwords-button-group-left' });
 
         // In edit mode, add the delete button (left side)
-        if (this.isEditMode && this.definition) {
+        // The delete button targets the user's own Canvas node. When a word card
+        // from a read-only .hiwords dictionary is merged with a user note stored
+        // in a Canvas book, `definition.source` points at the .hiwords package,
+        // so we must prefer `userNoteSource` instead.
+        const deletableSource = this.isEditMode
+            ? (this.definition?.userNoteSource ??
+                (this.definition && !this.definition.source.endsWith('.hiwords') ? this.definition : null))
+            : null;
+
+        if (deletableSource) {
             const deleteButton = leftButtonGroup.createEl('button', {
                 cls: 'delete-word-button',
+                attr: { title: t('modals.delete_button'), 'aria-label': t('modals.delete_button') },
             });
             // Use Obsidian's setIcon
             setIcon(deleteButton, 'trash');
-            deleteButton.onclick = () => {
-                void (async () => {
-                    // Confirm deletion
-                    const confirmed = await this.showDeleteConfirmation();
-                    if (!confirmed) return;
 
+            // Two-step confirmation directly on the button. We intentionally do
+            // NOT open a nested Modal here: opening a second modal on top of an
+            // existing one steals focus and swallows keyboard/ESC events, which
+            // previously made the delete flow appear to "do nothing".
+            let confirmArmed = false;
+            let confirmTimer: number | undefined;
+
+            const disarm = () => {
+                confirmArmed = false;
+                if (confirmTimer !== undefined) {
+                    window.clearTimeout(confirmTimer);
+                    confirmTimer = undefined;
+                }
+                deleteButton.removeClass('is-confirming');
+                deleteButton.empty();
+                setIcon(deleteButton, 'trash');
+                deleteButton.setAttribute('title', t('modals.delete_button'));
+                deleteButton.setAttribute('aria-label', t('modals.delete_button'));
+            };
+
+            deleteButton.onclick = () => {
+                if (!confirmArmed) {
+                    // First click: arm the button and ask for confirmation inline
+                    confirmArmed = true;
+                    deleteButton.addClass('is-confirming');
+                    deleteButton.empty();
+                    deleteButton.setText(t('modals.confirm_delete_button'));
+                    deleteButton.setAttribute('title', t('modals.delete_confirmation').replace('{0}', this.definition?.word || this.word).split('\n')[0]);
+                    deleteButton.setAttribute('aria-label', t('modals.confirm_delete_button'));
+                    confirmTimer = window.setTimeout(disarm, 3000);
+                    return;
+                }
+
+                // Second click within the time window: perform the deletion
+                disarm();
+
+                void (async () => {
                     // Show the deleting notice
                     const loadingNotice = new Notice(t('notices.deleting_word'), 0);
-                    const definition = this.definition;
-                    if (!definition) return;
+                    const source = deletableSource;
 
                     try {
                         const success = await this.plugin.vocabularyManager.deleteWordFromCanvas(
-                            definition.source,
-                            definition.nodeId
+                            source.source,
+                            source.nodeId
                         );
 
                         loadingNotice.hide();
@@ -372,41 +413,6 @@ export class AddWordModal extends Modal {
         return template
             .replace(/\{word\}/gi, this.word)
             .replace(/\{sentence\}/gi, this.sentence);
-    }
-
-    /**
-     * Show the delete confirmation dialog
-     * @returns Promise<boolean> whether the user confirmed deletion
-     */
-    private async showDeleteConfirmation(): Promise<boolean> {
-        return new Promise((resolve) => {
-            const modal = new Modal(this.app);
-            const message = t('modals.delete_confirmation').replace('{0}', this.definition?.word || this.word);
-            const deleteLabel = t('modals.delete_button');
-            modal.titleEl.setText(message.split('\n')[0]);
-            modal.contentEl.createEl('p', {
-                text: message
-            });
-
-            const buttonContainer = modal.contentEl.createDiv({ cls: 'hiwords-button-container' });
-            const cancelButton = buttonContainer.createEl('button', { text: t('modals.cancel_button') });
-            cancelButton.onclick = () => {
-                modal.close();
-                resolve(false);
-            };
-
-            const confirmButton = buttonContainer.createEl('button', {
-                text: deleteLabel === 'modals.delete_button' ? 'Delete' : deleteLabel,
-                cls: 'mod-warning'
-            });
-            confirmButton.onclick = () => {
-                modal.close();
-                resolve(true);
-            };
-
-            modal.onClose = () => resolve(false);
-            modal.open();
-        });
     }
 
     onClose() {
