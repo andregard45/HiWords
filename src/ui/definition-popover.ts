@@ -1,6 +1,6 @@
 import { App, MarkdownRenderer, MarkdownView, Notice, setIcon, TFile, Component } from 'obsidian';
 import { VocabularyManager, MasteredService } from '../core';
-import { playWordTTS, WordDefinition } from '../utils';
+import { WordDefinition } from '../utils';
 import { t } from '../i18n';
 import HiWordsPlugin from '../../main';
 import { renderWordCard } from './word-card-renderer';
@@ -276,14 +276,6 @@ export class DefinitionPopover extends Component {
         titleEl.className = 'hi-words-tooltip-title';
         titleEl.textContent = word;
         titleContainer.appendChild(titleEl);
-        // Click the title to pronounce
-        titleEl.title = 'Click to pronounce';
-        titleEl.addEventListener('click', (e) => {
-            e.stopPropagation();
-            void playWordTTS(this.plugin, word, wordDef || undefined).catch(error => {
-                console.error('HiWords failed to play pronunciation:', error);
-            });
-        });
 
         // Add the title container first
         tooltip.appendChild(titleContainer);
@@ -332,8 +324,6 @@ export class DefinitionPopover extends Component {
             renderWordCard(contentEl, wordDef, {
                 mode: 'popover',
                 app: this.app,
-                pronunciationVariant: this.plugin.settings.pronunciationVariant || 'us',
-                onPronunciationClick: (variant) => playWordTTS(this.plugin, wordDef.word, wordDef, variant),
                 display: this.plugin.getVocabularyBookDisplaySettings(wordDef.source),
                 onNoteClick: wordDef.source.endsWith('.hiwords') || wordDef.userNoteSource
                     ? () => {

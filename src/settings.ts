@@ -13,9 +13,6 @@ export const DEFAULT_SETTINGS: HiWordsSettings = {
     enableMasteredFeature: true, // Mastered feature enabled by default
     showMasteredInSidebar: true,  // Follows the value of enableMasteredFeature
     blurDefinitions: false, // Blur effect disabled by default
-    // Pronunciation URL template (user-editable in settings)
-    ttsTemplate: 'https://dict.youdao.com/dictvoice?audio={{word}}&type=2',
-    pronunciationVariant: 'us',
     // Auto layout (simplified, fixed parameters)
     autoLayoutEnabled: true,
     // Card size settings

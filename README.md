@@ -37,7 +37,7 @@ Supports not only editing mode but also perfectly supports Markdown reading mode
 
 ## 💡 Instant Definitions on Hover
 
-Simply hover over any highlighted word to instantly view detailed definitions with Markdown formatting support, without leaving your current document. You can mark words as mastered directly in the popup, click the word to hear pronunciation (supports custom TTS services, defaults to English pronunciation), and the popup interface seamlessly adapts to your Obsidian theme for a consistent visual experience.
+Simply hover over any highlighted word to instantly view detailed definitions with Markdown formatting support, without leaving your current document. You can mark words as mastered directly in the popup, and the popup interface seamlessly adapts to your Obsidian theme for a consistent visual experience.
 
 ---
 
@@ -51,7 +51,7 @@ Configure your preferred AI service (supports OpenAI, Anthropic, and other compa
 
 ## 📋 Sidebar Vocabulary View
 
-Open the sidebar with a quick command to track your vocabulary learning and see all words in the current document at a glance. Click any word to hear pronunciation, with colors matching Canvas node colors. You can toggle mastered words visibility to focus on active learning, and the list automatically updates in real-time as you edit or switch documents.
+Open the sidebar with a quick command to track your vocabulary learning and see all words in the current document at a glance. Words are shown with colors matching Canvas node colors. You can toggle mastered words visibility to focus on active learning, and the list automatically updates in real-time as you edit or switch documents.
 
 ---
 
@@ -122,7 +122,6 @@ Select any text and right-click to quickly add it to your vocabulary book, or us
 
 - **Show on Hover**: Enable/disable definition popups
 - **Blur Definitions**: Blur definitions until you hover (for active recall practice)
-- **TTS Template**: Customize pronunciation service URL
 
 ### AI Assistant Settings
 

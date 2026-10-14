@@ -41,13 +41,6 @@ export default {
         enable_mastered_feature_desc: "Mark mastered words to stop highlighting them. Mastered status is saved in plugin data, not inferred from Canvas colors or groups",
         blur_definitions: "Blur content",
         blur_definitions_desc: "Blur content by default, reveal on hover. Great for learning—recall before seeing the answer",
-        // TTS template
-        tts_template: "TTS template",
-        tts_template_desc: "Use {{word}}, {{type}}, and {{accent}} as placeholders. The default Youdao template switches type automatically",
-        pronunciation_variant: "Pronunciation",
-        pronunciation_variant_desc: "Choose which accent structured cards display and play",
-        pronunciation_uk: "UK",
-        pronunciation_us: "US",
         restore_default_prompt: "Restore default prompt",
         // Auto layout
         auto_layout: "Canvas auto layout",

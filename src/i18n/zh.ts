@@ -42,12 +42,6 @@ export default {
         blur_definitions: "模糊内容",
         blur_definitions_desc: "默认模糊显示内容，鼠标悬停时显示清晰内容。适合学习时先回忆再查看答案",
         // 发音地址模板
-        tts_template: "发音地址模板",
-        tts_template_desc: "使用 {{word}}、{{type}}、{{accent}} 作为占位符。默认有道模板会根据英/美音自动切换 type",
-        pronunciation_variant: "发音偏好",
-        pronunciation_variant_desc: "选择结构化词卡显示和播放英音还是美音",
-        pronunciation_uk: "英音",
-        pronunciation_us: "美音",
         restore_default_prompt: "恢复默认提示词",
         // 自动布局
         auto_layout: "白板自动布局",

@@ -41,13 +41,6 @@ export default {
         enable_mastered_feature_desc: "Marca palabras dominadas para dejar de resaltarlas. La barra lateral muestra grupos",
         blur_definitions: "Difuminar contenido",
         blur_definitions_desc: "Difuminar por defecto, mostrar al pasar el cursor. Ideal para recordar antes de ver la respuesta",
-        // TTS template
-        tts_template: "Plantilla TTS",
-        tts_template_desc: "Usa {{word}}, {{type}} y {{accent}} como marcadores. La plantilla Youdao predeterminada cambia type automáticamente",
-        pronunciation_variant: "Pronunciación",
-        pronunciation_variant_desc: "Elige qué acento muestran y reproducen las tarjetas estructuradas",
-        pronunciation_uk: "UK",
-        pronunciation_us: "US",
         // Auto layout
         auto_layout: "Diseño automático del lienzo",
         enable_auto_layout: "Habilitar diseño automático",
