@@ -4,11 +4,11 @@ import { t } from '../i18n';
 import { extractSentenceFromEditorMultiline, extractSentenceFromSelection } from '../utils/sentence-extractor';
 
 /**
- * 注册所有插件命令
- * @param plugin HiWords 插件实例
+ * Register all plugin commands
+ * @param plugin the HiWords plugin instance
  */
 export function registerCommands(plugin: HiWordsPlugin) {
-    // 刷新生词本命令
+    // Refresh word books command
     plugin.addCommand({
         id: 'refresh-vocabulary',
         name: t('commands.refresh_vocabulary'),
@@ -19,13 +19,13 @@ export function registerCommands(plugin: HiWordsPlugin) {
         }
     });
 
-    // 打开生词列表侧边栏命令
+    // Open word-list sidebar command
     plugin.addCommand({
         id: 'open-vocabulary-sidebar',
         name: t('commands.show_sidebar'),
         callback: () => {
             void plugin.activateSidebarView().catch(error => {
-                console.error('打开 HiWords 侧边栏失败:', error);
+                console.error('Failed to open HiWords sidebar:', error);
             });
         }
     });
@@ -35,7 +35,7 @@ export function registerCommands(plugin: HiWordsPlugin) {
         name: t('commands.open_library'),
         callback: () => {
             void plugin.activateLibraryView().catch(error => {
-                console.error('打开 HiWords 单词管理失败:', error);
+                console.error('Failed to open HiWords word manager:', error);
             });
         }
     });
@@ -64,7 +64,7 @@ export function registerCommands(plugin: HiWordsPlugin) {
         }
     });
 
-    // 添加选中单词到生词本命令（智能适配所有视图模式）
+    // Add selected word to word book command (adapts to all view modes)
     plugin.addCommand({
         id: 'add-selected-word',
         name: t('commands.add_selected_word'),
@@ -72,25 +72,25 @@ export function registerCommands(plugin: HiWordsPlugin) {
             let word = '';
             let sentence = '';
             
-            // 尝试获取当前活动的编辑器
+            // Try to get the current active editor
             const activeView = plugin.app.workspace.getActiveViewOfType(MarkdownView);
             const editor = activeView?.editor;
             const viewMode = activeView?.getMode();
             
-            // 检查是否在编辑模式（Live Preview 或 Source Mode）
-            // Live Preview 和 Source Mode 都返回 'source'，阅读模式返回 'preview'
+            // Check whether we are in edit mode (Live Preview or Source Mode)
+            // Both Live Preview and Source Mode return 'source'; reading mode returns 'preview'
             const isEditMode = editor && viewMode === 'source';
             
             if (isEditMode) {
-                // 编辑模式：使用 Editor API，句子提取更准确（支持跨行）
+                // Edit mode: use the Editor API for more accurate sentence extraction (multi-line supported)
                 word = editor.getSelection().trim();
                 sentence = extractSentenceFromEditorMultiline(editor);
             } else {
-                // 阅读模式/PDF 视图：使用 window.getSelection()
+                // Reading mode/PDF view: use window.getSelection()
                 const selection = window.getSelection();
                 word = selection?.toString().trim() || '';
                 
-                // 备用方案：如果 selection.toString() 为空，尝试从 range 获取
+                // Fallback: if selection.toString() is empty, try reading from the range
                 if (!word && selection && selection.rangeCount > 0) {
                     word = selection.getRangeAt(0).toString().trim();
                 }
@@ -98,7 +98,7 @@ export function registerCommands(plugin: HiWordsPlugin) {
                 sentence = extractSentenceFromSelection(selection);
             }
             
-            // 打开模态框（有选中文本时预填充，无选中时可手动输入）
+            // Open the modal (prefilled when text is selected; manual input otherwise)
             plugin.addOrEditWord(word, sentence);
         }
     });

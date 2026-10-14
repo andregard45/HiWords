@@ -1,2 +1,9 @@
-*.log
 .env
+.env.local
+*.env.*
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db

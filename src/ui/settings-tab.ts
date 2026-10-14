@@ -21,12 +21,12 @@ export class HiWordsSettingTab extends PluginSettingTab {
     }
 
     /**
-     * 添加高亮范围设置（作为高亮设置的子部分）
+     * Add highlight-scope settings (as a subsection of highlight settings)
      */
     private addHighlightScopeSettings() {
         const { containerEl } = this;
 
-        // 高亮模式选择
+        // Highlight mode selection
         new Setting(containerEl)
             .setName(t('settings.highlight_mode'))
             .setDesc(t('settings.highlight_mode_desc'))
@@ -40,10 +40,10 @@ export class HiWordsSettingTab extends PluginSettingTab {
                         this.plugin.settings.highlightMode = value as 'all' | 'exclude' | 'include';
                         await this.plugin.saveSettings();
                         this.plugin.refreshHighlighter();
-                    }, 'HiWords 保存高亮模式失败:');
+                    }, 'HiWords failed to save highlight mode:');
                 }));
 
-        // 文件路径输入框（上下结构）
+        // File path input (stacked layout)
         const pathsSetting = new Setting(containerEl)
             .setName(t('settings.highlight_paths'))
             .setDesc(t('settings.highlight_paths_desc'));
@@ -51,27 +51,27 @@ export class HiWordsSettingTab extends PluginSettingTab {
         pathsSetting.settingEl.addClass('hi-words-setting-textarea');
         pathsSetting.controlEl.empty();
 
-        // 在当前设置项内创建全宽文本域
+        // Create a full-width textarea inside the current setting
         const textAreaContainer = pathsSetting.controlEl.createDiv({ cls: 'hi-words-textarea-container' });
         const textArea = textAreaContainer.createEl('textarea');
         textArea.placeholder = t('settings.highlight_paths_placeholder') || 'e.g.: Archive, Templates, Private/Diary';
         textArea.value = this.plugin.settings.highlightPaths || '';
         textArea.rows = 3;
 
-        // 使用 change 事件而不是 input 事件，避免频繁保存
+        // Use the change event instead of input to avoid frequent saves
         textArea.addEventListener('blur', () => {
             void (async () => {
                 this.plugin.settings.highlightPaths = textArea.value;
                 await this.plugin.saveSettings();
                 this.plugin.refreshHighlighter();
             })().catch(error => {
-                console.error('HiWords 保存高亮路径失败:', error);
+                console.error('HiWords failed to save highlight paths:', error);
             });
         });
     }
 
     /**
-     * 添加文件节点解析模式设置
+     * Add the file-node parsing mode setting
      */
     private addFileNodeParseModeSettings() {
         const { containerEl } = this;
@@ -88,14 +88,14 @@ export class HiWordsSettingTab extends PluginSettingTab {
                     this.runAsync(async () => {
                         this.plugin.settings.fileNodeParseMode = value as 'filename' | 'content' | 'filename-with-alias';
                         await this.plugin.saveSettings();
-                        // 提示用户重新加载插件以应用新的解析模式
-                        new Notice('请重新加载插件以应用新的文件节点解析模式');
-                    }, 'HiWords 保存文件节点解析模式失败:');
+                        // Prompt the user to reload the plugin to apply the new parsing mode
+                        new Notice('Reload the plugin to apply the new file node parsing mode');
+                    }, 'HiWords failed to save file node parsing mode:');
                 }));
     }
 
     /**
-     * 添加自动布局设置
+     * Add auto-layout settings
      */
     private addAutoLayoutSettings() {
         const { containerEl } = this;
@@ -104,7 +104,7 @@ export class HiWordsSettingTab extends PluginSettingTab {
             .setName(t('settings.auto_layout'))
             .setHeading();
 
-        // 启用自动布局
+        // Enable auto-layout
         new Setting(containerEl)
             .setName(t('settings.enable_auto_layout'))
             .setDesc(t('settings.enable_auto_layout_desc'))
@@ -114,10 +114,10 @@ export class HiWordsSettingTab extends PluginSettingTab {
                     this.runAsync(async () => {
                         this.plugin.settings.autoLayoutEnabled = value;
                         await this.plugin.saveSettings();
-                    }, 'HiWords 保存自动布局设置失败:');
+                    }, 'HiWords failed to save auto layout setting:');
                 }));
 
-        // 卡片尺寸设置（宽度和高度在同一行）
+        // Card size settings (width and height on the same row)
         new Setting(containerEl)
             .setName(t('settings.card_size') || 'Card size')
             .setDesc(t('settings.card_size_desc') || 'Default width and height for canvas cards')
@@ -131,7 +131,7 @@ export class HiWordsSettingTab extends PluginSettingTab {
                             this.plugin.settings.cardWidth = width;
                             await this.plugin.saveSettings();
                         }
-                    }, 'HiWords 保存卡片宽度失败:');
+                    }, 'HiWords failed to save card width:');
                 }))
             .addText(text => text
                 .setPlaceholder('120')
@@ -143,7 +143,7 @@ export class HiWordsSettingTab extends PluginSettingTab {
                             this.plugin.settings.cardHeight = height;
                             await this.plugin.saveSettings();
                         }
-                    }, 'HiWords 保存卡片高度失败:');
+                    }, 'HiWords failed to save card height:');
                 }));
     }
 
@@ -151,22 +151,22 @@ export class HiWordsSettingTab extends PluginSettingTab {
         const { containerEl } = this;
         containerEl.empty();
 
-        // 1. 生词本管理
+        // 1. Word book management
         this.addVocabularyBooksSection();
         this.addFileNodeParseModeSettings();
 
-        // 2. 高亮设置
+        // 2. Highlight settings
         this.addHighlightingSection();
 
-        // 3. 学习功能
+        // 3. Learning features
         this.addLearningFeaturesSection();
 
-        // 4. Canvas 设置
+        // 4. Canvas settings
         this.addAutoLayoutSettings();
     }
 
     /**
-     * 2. 添加高亮设置
+     * 2. Add highlight settings
      */
     private addHighlightingSection() {
         const { containerEl } = this;
@@ -175,7 +175,7 @@ export class HiWordsSettingTab extends PluginSettingTab {
             .setName(t('settings.enable_auto_highlight') || 'Highlighting')
             .setHeading();
 
-        // 启用自动高亮
+        // Enable auto-highlight
         new Setting(containerEl)
             .setName(t('settings.enable_auto_highlight'))
             .setDesc(t('settings.enable_auto_highlight_desc'))
@@ -185,12 +185,12 @@ export class HiWordsSettingTab extends PluginSettingTab {
                     this.runAsync(async () => {
                         this.plugin.settings.enableAutoHighlight = value;
                         await this.plugin.saveSettings();
-                        // 刷新高亮器,立即应用设置
+                        // Refresh highlighters and apply settings immediately
                         this.plugin.refreshHighlighter();
-                    }, 'HiWords 保存自动高亮设置失败:');
+                    }, 'HiWords failed to save auto highlight setting:');
                 }));
 
-        // 浮动显示定义
+        // Floating definition display
         new Setting(containerEl)
             .setName(t('settings.show_definition_on_hover'))
             .setDesc(t('settings.show_definition_on_hover_desc'))
@@ -200,7 +200,7 @@ export class HiWordsSettingTab extends PluginSettingTab {
                     this.runAsync(async () => {
                         this.plugin.settings.showDefinitionOnHover = value;
                         await this.plugin.saveSettings();
-                    }, 'HiWords 保存悬停预览设置失败:');
+                    }, 'HiWords failed to save hover preview setting:');
                 }));
 
         new Setting(containerEl)
@@ -213,7 +213,7 @@ export class HiWordsSettingTab extends PluginSettingTab {
                         this.plugin.settings.enableSectionTabs = value;
                         await this.plugin.saveSettings();
                         this.plugin.app.workspace.trigger('hi-words:settings-changed');
-                    }, 'HiWords 保存分区标签设置失败:');
+                    }, 'HiWords failed to save section tab setting:');
                 }));
 
         new Setting(containerEl)
@@ -228,10 +228,10 @@ export class HiWordsSettingTab extends PluginSettingTab {
                         this.plugin.settings.sidebarDefaultDisplayMode = value as 'detail' | 'word';
                         await this.plugin.saveSettings();
                         this.plugin.app.workspace.trigger('hi-words:settings-changed');
-                    }, 'HiWords 保存侧边栏默认显示设置失败:');
+                    }, 'HiWords failed to save sidebar default display setting:');
                 }));
 
-        // 高亮样式选择
+        // Highlight style selection
         new Setting(containerEl)
             .setName(t('settings.highlight_style'))
             .setDesc(t('settings.highlight_style_desc'))
@@ -247,16 +247,16 @@ export class HiWordsSettingTab extends PluginSettingTab {
                         this.plugin.settings.highlightStyle = value as HighlightStyle;
                         await this.plugin.saveSettings();
                         this.plugin.refreshHighlighter();
-                    }, 'HiWords 保存高亮样式失败:');
+                    }, 'HiWords failed to save highlight style:');
                 }));
 
-        // 高亮范围设置
+        // Highlight scope settings
         this.addHighlightScopeSettings();
     }
 
 
     /**
-     * 3. 添加学习功能设置
+     * 3. Add learning-feature settings
      */
     private addLearningFeaturesSection() {
         const { containerEl } = this;
@@ -265,7 +265,7 @@ export class HiWordsSettingTab extends PluginSettingTab {
             .setName(t('settings.enable_mastered_feature') || 'Learning Features')
             .setHeading();
 
-        // 启用已掌握功能
+        // Enable the mastered feature
         new Setting(containerEl)
             .setName(t('settings.enable_mastered_feature'))
             .setDesc(t('settings.enable_mastered_feature_desc'))
@@ -274,17 +274,17 @@ export class HiWordsSettingTab extends PluginSettingTab {
                 .onChange((value) => {
                     this.runAsync(async () => {
                         this.plugin.settings.enableMasteredFeature = value;
-                        // 当启用已掌握功能时，自动启用侧边栏分组显示
+                        // When the mastered feature is enabled, sidebar grouping turns on automatically
                         this.plugin.settings.showMasteredInSidebar = value;
                         await this.plugin.saveSettings();
                         this.plugin.refreshHighlighter();
-                        // 触发侧边栏更新
+                        // Trigger a sidebar update
                         this.plugin.app.workspace.trigger('hi-words:mastered-changed');
                         this.display();
-                    }, 'HiWords 保存已掌握功能设置失败:');
+                    }, 'HiWords failed to save mastered feature setting:');
                 }));
 
-        // 模糊定义内容
+        // Blur definition content
         new Setting(containerEl)
             .setName(t('settings.blur_definitions'))
             .setDesc(t('settings.blur_definitions_desc'))
@@ -294,12 +294,12 @@ export class HiWordsSettingTab extends PluginSettingTab {
                     this.runAsync(async () => {
                         this.plugin.settings.blurDefinitions = value;
                         await this.plugin.saveSettings();
-                        // 触发侧边栏更新以应用模糊效果
+                        // Trigger a sidebar update to apply the blur effect
                         this.plugin.app.workspace.trigger('hi-words:settings-changed');
-                    }, 'HiWords 保存模糊释义设置失败:');
+                    }, 'HiWords failed to save blurred definition setting:');
                 }));
 
-        // 发音地址模板（点击主词发音）
+        // Pronunciation URL template (click headword to pronounce)
         new Setting(containerEl)
             .setName(t('settings.tts_template') || 'TTS template')
             .setDesc(t('settings.tts_template_desc') || 'Use {{word}}, {{type}}, and {{accent}} as placeholders.')
@@ -310,7 +310,7 @@ export class HiWordsSettingTab extends PluginSettingTab {
                     this.runAsync(async () => {
                         this.plugin.settings.ttsTemplate = val.trim();
                         await this.plugin.saveSettings();
-                    }, 'HiWords 保存发音模板失败:');
+                    }, 'HiWords failed to save pronunciation template:');
                 }));
 
         new Setting(containerEl)
@@ -327,22 +327,22 @@ export class HiWordsSettingTab extends PluginSettingTab {
                         this.plugin.app.workspace.trigger('hi-words:settings-changed');
                         this.plugin.refreshHighlighter();
                         this.display();
-                    }, 'HiWords 保存发音偏好失败:');
+                    }, 'HiWords failed to save pronunciation preference:');
                 }));
 
     }
 
     /**
-     * 添加生词本管理部分
+     * Add the word-book management section
      */
     private addVocabularyBooksSection() {
         const { containerEl } = this;
 
-        // 添加生词本图标按钮
+        // Add word-book icon buttons
         const addBookContainer = containerEl.createDiv({ cls: 'hi-words-add-book-container' });
         addBookContainer.addEventListener('click', () => {
             void this.showVocabularyBookFilePicker().catch(error => {
-                console.error('HiWords 打开词库选择器失败:', error);
+                console.error('HiWords failed to open dictionary picker:', error);
             });
         });
 
@@ -355,15 +355,15 @@ export class HiWordsSettingTab extends PluginSettingTab {
         setIcon(addBookIcon, 'plus-circle');
         addBookIcon.setAttribute('aria-label', t('settings.add_vocabulary_book'));
 
-        // 显示现有生词本
+        // Show existing word books
         this.displayVocabularyBooks();
 
-        // 统计信息
+        // Statistics
         this.displayStats();
     }
 
     /**
-     * 显示词库文件选择器
+     * Show the dictionary file picker
      */
     private async showVocabularyBookFilePicker() {
         const vocabularyFiles = this.app.vault.getFiles()
@@ -374,27 +374,27 @@ export class HiWordsSettingTab extends PluginSettingTab {
             return;
         }
 
-        // 创建选择模态框
+        // Create the selection modal
         const modal = new VocabularyBookPickerModal(this.app, vocabularyFiles, (file) => {
             void this.addVocabularyBook(file).catch(error => {
-                console.error('HiWords 添加词库失败:', error);
+                console.error('HiWords failed to add dictionary:', error);
             });
         });
         modal.open();
     }
 
     /**
-     * 添加生词本
+     * Add a word book
      */
     private async addVocabularyBook(file: TFile) {
-        // 检查是否已存在
+        // Check whether it already exists
         const exists = this.plugin.settings.vocabularyBooks.some(book => book.path === file.path);
         if (exists) {
             new Notice(t('notices.book_already_exists'));
             return;
         }
 
-        // 验证词库文件
+        // Validate the dictionary file
         const hiWordsParser = file.extension === 'hiwords' ? new HiWordsParser(this.app) : null;
         const metadata = hiWordsParser ? await hiWordsParser.readMetadata(file) : null;
         const isValid = hiWordsParser
@@ -405,7 +405,7 @@ export class HiWordsSettingTab extends PluginSettingTab {
             return;
         }
 
-        // 添加到设置
+        // Add to settings
         const newBook: VocabularyBook = {
             path: file.path,
             name: file.basename,
@@ -418,11 +418,11 @@ export class HiWordsSettingTab extends PluginSettingTab {
         this.plugin.refreshHighlighter();
 
         new Notice(t('notices.book_added').replace('{0}', newBook.name));
-        this.display(); // 刷新设置页面
+        this.display(); // Refresh the settings page
     }
 
     /**
-     * 显示现有生词本
+     * Show existing word books
      */
     private displayVocabularyBooks() {
         const { containerEl } = this;
@@ -440,7 +440,7 @@ export class HiWordsSettingTab extends PluginSettingTab {
                 .setName(book.name)
                 .setDesc(`${t('settings.path')}: ${book.path}`);
 
-            // 创建图标容器
+            // Create the icon container
             const iconsContainer = setting.controlEl.createDiv({ cls: 'hi-words-book-icons' });
 
             if (book.path.endsWith('.hiwords')) {
@@ -454,7 +454,7 @@ export class HiWordsSettingTab extends PluginSettingTab {
                 });
             }
 
-            // 重新加载图标
+            // Reload icon
             const reloadIcon = iconsContainer.createDiv({ cls: 'clickable-icon' });
             setIcon(reloadIcon, 'refresh-cw');
             reloadIcon.setAttribute('aria-label', t('settings.reload_book'));
@@ -464,11 +464,11 @@ export class HiWordsSettingTab extends PluginSettingTab {
                     this.plugin.refreshHighlighter();
                     new Notice(t('notices.book_reloaded').replace('{0}', book.name));
                 })().catch(error => {
-                    console.error('HiWords 重新加载词库失败:', error);
+                    console.error('HiWords failed to reload dictionaries:', error);
                 });
             });
 
-            // 删除图标
+            // Delete icon
             const deleteIcon = iconsContainer.createDiv({ cls: 'clickable-icon mod-warning' });
             setIcon(deleteIcon, 'trash');
             deleteIcon.setAttribute('aria-label', t('settings.remove_vocabulary_book'));
@@ -479,13 +479,13 @@ export class HiWordsSettingTab extends PluginSettingTab {
                     await this.plugin.vocabularyManager.loadAllVocabularyBooks();
                     this.plugin.refreshHighlighter();
                     new Notice(t('notices.book_removed').replace('{0}', book.name));
-                    this.display(); // 刷新设置页面
+                    this.display(); // Refresh the settings page
                 })().catch(error => {
-                    console.error('HiWords 删除词库失败:', error);
+                    console.error('HiWords failed to delete dictionary:', error);
                 });
             });
 
-            // 启用/禁用开关
+            // Enable/disable toggle
             setting.addToggle(toggle => toggle
                 .setValue(book.enabled)
                 .onChange((value) => {
@@ -498,7 +498,7 @@ export class HiWordsSettingTab extends PluginSettingTab {
                             await this.plugin.vocabularyManager.loadAllVocabularyBooks();
                         }
                         this.plugin.refreshHighlighter();
-                    }, 'HiWords 保存词库启用状态失败:');
+                    }, 'HiWords failed to save dictionary enabled state:');
                 }));
         });
     }
@@ -604,7 +604,7 @@ export class HiWordsSettingTab extends PluginSettingTab {
     }
 
     /**
-     * 显示统计信息
+     * Show statistics
      */
     private displayStats() {
         const { containerEl } = this;
@@ -612,17 +612,17 @@ export class HiWordsSettingTab extends PluginSettingTab {
 
         const statsEl = containerEl.createEl('div', { cls: 'hi-words-stats' });
 
-        // 总单词本数量
+        // Total number of word books
         const totalBooksItem = statsEl.createEl('div', { cls: 'stat-item' });
         totalBooksItem.createEl('div', { cls: 'stat-value', text: stats.totalBooks.toString() });
         totalBooksItem.createEl('div', { cls: 'stat-label', text: t('settings.total_books').split(':')[0] });
 
-        // 已启用单词本
+        // Enabled word books
         const enabledBooksItem = statsEl.createEl('div', { cls: 'stat-item' });
         enabledBooksItem.createEl('div', { cls: 'stat-value', text: stats.enabledBooks.toString() });
         enabledBooksItem.createEl('div', { cls: 'stat-label', text: t('settings.enabled_books').split(':')[0] });
 
-        // 总单词数
+        // Total number of words
         const totalWordsItem = statsEl.createEl('div', { cls: 'stat-item' });
         totalWordsItem.createEl('div', { cls: 'stat-value', text: stats.totalWords.toString() });
         totalWordsItem.createEl('div', { cls: 'stat-label', text: t('settings.total_words').split(':')[0] });
@@ -708,7 +708,7 @@ class HiWordsPackPreviewModal extends Modal {
     }
 }
 
-// 词库文件选择模态框（使用 FuzzySuggestModal 支持模糊搜索）
+// Dictionary file picker modal (FuzzySuggestModal with fuzzy search)
 class VocabularyBookPickerModal extends FuzzySuggestModal<TFile> {
     private files: TFile[];
     private onSelect: (file: TFile) => void;
@@ -720,17 +720,17 @@ class VocabularyBookPickerModal extends FuzzySuggestModal<TFile> {
         this.setPlaceholder(t('modals.select_vocabulary_book_file'));
     }
 
-    // 返回所有可选项
+    // Return all selectable items
     getItems(): TFile[] {
         return this.files;
     }
 
-    // 返回每个项的显示文本（用于搜索匹配）
+    // Return each item's display text (used for search matching)
     getItemText(file: TFile): string {
         return file.path;
     }
 
-    // 当用户选择某项时调用
+    // Called when the user selects an item
     onChooseItem(file: TFile, evt: MouseEvent | KeyboardEvent) {
         this.onSelect(file);
     }

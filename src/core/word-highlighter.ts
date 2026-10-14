@@ -18,13 +18,13 @@ import { VocabularyManager } from './vocabulary-manager';
 import { WordMatch, WordDefinition, mapCanvasColorToCSSVar, Trie } from '../utils';
 import { findPatternMatches } from '../utils/pattern-matcher';
 
-// 防抖延迟时间（毫秒）
+// Debounce delay (milliseconds)
 const DEBOUNCE_DELAY = 300;
 
-// 状态效果：强制更新高亮
+// State effect: force-update highlights
 const forceUpdateEffect = StateEffect.define<boolean>();
 
-// 全局高亮器管理器
+// Global highlighter manager
 class HighlighterManager {
     private static instance: HighlighterManager;
     private highlighters: Set<WordHighlighter> = new Set();
@@ -50,7 +50,7 @@ class HighlighterManager {
             try {
                 highlighter.forceUpdate();
             } catch (error) {
-                console.error('刷新高亮器失败:', error);
+                console.error('Failed to refresh highlighters:', error);
             }
         });
     }
@@ -60,39 +60,39 @@ class HighlighterManager {
     }
 }
 
-// 导出全局实例
+// Export the global instance
 export const highlighterManager = HighlighterManager.getInstance();
 
-// 状态字段：存储当前高亮的词汇
+// State field: stores currently highlighted vocabulary
 const highlightState = StateField.define<DecorationSet>({
     create() {
         return Decoration.none;
     },
     update(decorations, tr) {
-        // 不使用 map 来自动调整位置，因为这会导致高亮位置错误
-        // 而是依赖 ViewPlugin 重新扫描文档来更新高亮
-        // map 的问题：它只是机械地调整位置，不会重新匹配单词
+        // Do not use map to auto-adjust positions, as that causes wrong highlight positions
+        // Instead rely on the ViewPlugin rescanning the document to update highlights
+        // Problem with map: it mechanically shifts positions without re-matching words
         
         for (const effect of tr.effects) {
             if (effect.is(forceUpdateEffect)) {
-                // 强制重新构建装饰器
+                // Force decorators to be rebuilt
                 return Decoration.none;
             }
         }
         
-        // 保持当前装饰器不变，等待 ViewPlugin 更新
+        // Keep current decorators and wait for the ViewPlugin to update
         return decorations;
     },
     provide: f => EditorView.decorations.from(f)
 });
 
-// 词汇高亮插件
+// Vocabulary highlight plugin
 export class WordHighlighter implements PluginValue {
     decorations: DecorationSet;
     private vocabularyManager: VocabularyManager;
     private editorView: EditorView;
     private wordTrie: Trie;
-    private patternDefinitions: WordDefinition[] = []; // 缓存模式短语列表
+    private patternDefinitions: WordDefinition[] = []; // Cached pattern-phrase list
     private debounceTimer: number | null = null;
     private lastRanges: {from: number, to: number}[] = [];
     private cachedMatches: Map<string, WordMatch[]> = new Map();
@@ -106,22 +106,22 @@ export class WordHighlighter implements PluginValue {
         this.buildWordTrie();
         this.decorations = this.buildDecorations(view);
         
-        // 注册到全局管理器
+        // Register with the global manager
         highlighterManager.register(this);
     }
 
     /**
-     * 构建单词前缀树，同时缓存模式短语列表
-     * 只添加普通单词到 Trie，模式短语缓存到 patternDefinitions
+     * Build the word trie and cache the pattern-phrase list at the same time
+     * Only plain words go into the Trie; pattern phrases are cached in patternDefinitions
      */
     private buildWordTrie() {
         this.wordTrie.clear();
-        this.patternDefinitions = []; // 清空模式短语缓存
+        this.patternDefinitions = []; // Clear the pattern-phrase cache
         
-        // 获取去重后的未掌握学习对象（已掌握的对象不会被高亮）
+        // Get deduplicated unmastered study objects (mastered ones are not highlighted)
         const definitions = this.vocabularyManager.getStudyDefinitionsForHighlight();
         
-        // 将主词和别名添加到前缀树，同时缓存模式短语
+        // Add headwords and aliases to the trie while caching pattern phrases
         for (const definition of definitions) {
             if (definition.isPattern) {
                 this.patternDefinitions.push(definition);
@@ -138,30 +138,30 @@ export class WordHighlighter implements PluginValue {
     }
 
     update(update: ViewUpdate) {
-        // 如果文档内容发生变化，立即更新高亮（不使用防抖）
+        // If document content changed, update highlights immediately (no debounce)
         if (update.docChanged) {
-            // 清除缓存，确保重新匹配
+            // Clear caches to ensure re-matching
             this.cachedMatches.clear();
-            // 立即重建装饰器
+            // Rebuild decorators immediately
             this.decorations = this.buildDecorations(update.view);
         }
-        // 如果只是视口或焦点变化，使用防抖处理
+        // For viewport or focus-only changes, use debouncing
         else if (update.viewportChanged || update.focusChanged) {
             this.debouncedUpdate(update.view);
         }
     }
 
     /**
-     * 强制更新高亮
+     * Force-update highlights
      */
     forceUpdate() {
-        // 重建前缀树
+        // Rebuild the trie
         this.buildWordTrie();
         
-        // 清除缓存
+        // Clear caches
         this.cachedMatches.clear();
         
-        // 重建装饰器
+        // Rebuild decorators
         this.decorations = this.buildDecorations(this.editorView);
         this.editorView.dispatch({
             effects: forceUpdateEffect.of(true)
@@ -169,7 +169,7 @@ export class WordHighlighter implements PluginValue {
     }
     
     /**
-     * 防抖更新处理
+     * Debounced update handler
      */
     private debouncedUpdate(view: EditorView) {
         if (this.debounceTimer) {
@@ -183,21 +183,21 @@ export class WordHighlighter implements PluginValue {
     }
 
     /**
-     * 构建装饰器
+     * Build decorators
      */
     private buildDecorations(view: EditorView): DecorationSet {
-        // 检查是否启用了自动高亮功能
+        // Check whether auto-highlight is enabled
         const settings = this.vocabularyManager.getSettings();
         if (!settings.enableAutoHighlight) {
-            // 如果禁用了高亮，返回空装饰器
+            // If highlighting is disabled, return empty decorations
             return Decoration.none;
         }
         
-        // 检查当前文件是否应该被高亮
+        // Check whether the current file should be highlighted
         if (this.shouldHighlightFile) {
             const file = view.state.field(editorInfoField);
             if (file?.file?.path && !this.shouldHighlightFile(file.file.path)) {
-                // 如果文件不应该被高亮，返回空装饰器
+                // If the file should not be highlighted, return empty decorations
                 return Decoration.none;
             }
         }
@@ -205,11 +205,11 @@ export class WordHighlighter implements PluginValue {
         const builder = new RangeSetBuilder<Decoration>();
         const matches: WordMatch[] = [];
         
-        // 检查可见范围是否发生变化
+        // Check whether the visible range changed
         const currentRanges = view.visibleRanges;
         const rangesChanged = this.haveRangesChanged(currentRanges);
         
-        // 如果可见范围没有变化且有缓存，直接使用缓存的匹配结果
+        // If the visible range is unchanged and cached, reuse cached matches
         const cacheKey = currentRanges.map(r => `${r.from}-${r.to}`).join(',');
         const cachedMatches = this.cachedMatches.get(cacheKey);
         if (!rangesChanged && cachedMatches) {
@@ -217,43 +217,43 @@ export class WordHighlighter implements PluginValue {
             return builder.finish();
         }
         
-        // 更新最后处理的范围
+        // Update the last processed range
         this.lastRanges = currentRanges.map(range => ({from: range.from, to: range.to}));
         
-        // 扫描可见范围内的文本
+        // Scan text within the visible range
         for (const { from, to } of view.visibleRanges) {
             const text = view.state.sliceDoc(from, to);
             matches.push(...this.findWordMatches(text, from));
         }
 
-        // 按位置排序
+        // Sort by position
         matches.sort((a, b) => a.from - b.from);
         
-        // 处理重叠匹配
+        // Handle overlapping matches
         const filteredMatches = this.removeOverlaps(matches);
         
-        // 缓存处理结果
+        // Cache the result
         this.cachedMatches.set(cacheKey, filteredMatches);
         
-        // 应用装饰
+        // Apply decorations
         this.applyDecorations(builder, filteredMatches);
         
         return builder.finish();
     }
     
     /**
-     * 应用装饰到构建器
-     * 支持模式短语的分段高亮
+     * Apply decorations to the builder
+     * Supports segmented highlighting for pattern phrases
      */
     private applyDecorations(builder: RangeSetBuilder<Decoration>, matches: WordMatch[]) {
-        // 获取当前高亮样式设置
+        // Get the current highlight style setting
         const highlightStyle = this.vocabularyManager.getSettings().highlightStyle || 'underline';
         
         matches.forEach(match => {
-            // 使用与侧边栏视图一致的默认灰色
+            // Use the same default gray as the sidebar view
             const highlightColor = mapCanvasColorToCSSVar(match.definition.color, 'var(--color-base-60)');
             
-            // 如果是模式短语且有分段信息，则分段高亮
+            // For pattern phrases with segment info, highlight each segment
             if (match.segments && match.segments.length > 0) {
                 match.segments.forEach(segment => {
                     builder.add(
@@ -272,7 +272,7 @@ export class WordHighlighter implements PluginValue {
                     );
                 });
             } else {
-                // 普通单词，整体高亮
+                // Plain word: highlight as a whole
                 builder.add(
                     match.from, 
                     match.to, 
@@ -292,7 +292,7 @@ export class WordHighlighter implements PluginValue {
     }
     
     /**
-     * 检查可见范围是否发生变化
+     * Check whether the visible range changed
      */
     private haveRangesChanged(currentRanges: readonly {from: number, to: number}[]): boolean {
         if (this.lastRanges.length !== currentRanges.length) {
@@ -310,18 +310,18 @@ export class WordHighlighter implements PluginValue {
     }
 
     /**
-     * 在文本中查找词汇匹配
-     * 使用前缀树进行高效匹配（普通单词）和模式匹配（模式短语）
-     * 优化：使用缓存的模式短语列表，避免重复查找
+     * Find vocabulary matches in the text
+     * Use the trie for efficient plain-word matching and pattern matching for phrases
+     * Optimization: use the cached pattern-phrase list to avoid repeated lookups
      */
     private findWordMatches(text: string, offset: number): WordMatch[] {
         const matches: WordMatch[] = [];
         
         try {
-            // 使用前缀树查找所有普通单词匹配
+            // Use the trie to find all plain-word matches
             const trieMatches = this.wordTrie.findAllMatches(text);
             
-            // 转换为 WordMatch 对象
+            // Convert into WordMatch objects
             for (const match of trieMatches) {
                 const definition = match.payload as WordDefinition;
                 if (definition) {
@@ -335,7 +335,7 @@ export class WordHighlighter implements PluginValue {
                 }
             }
             
-            // 查找模式短语匹配（优化：使用缓存的列表）
+            // Find pattern-phrase matches (optimized: uses the cached list)
             for (const definition of this.patternDefinitions) {
                 if (definition.patternParts && definition.patternParts.length > 0) {
                     const patternMatches = findPatternMatches(text, definition.patternParts, offset);
@@ -353,24 +353,24 @@ export class WordHighlighter implements PluginValue {
                 }
             }
         } catch (e) {
-            console.error('在 findWordMatches 中发生错误:', e);
+            console.error('Error in findWordMatches:', e);
         }
         
         return matches;
     }
 
     /**
-     * 移除重叠的匹配项，使用游标算法高效处理
-     * 注意：当前实现允许重叠高亮，因为这对于包含关系的单词（如 "art" 和 "start"）更合理
+     * Remove overlapping matches efficiently with a cursor algorithm
+     * Note: the current implementation allows overlapping highlights, which is more sensible for nested words (e.g. "art" and "start")
      */
     private removeOverlaps(matches: WordMatch[]): WordMatch[] {
-        // 直接返回所有匹配，允许重叠高亮
-        // 这样可以正确处理包含关系的单词，如 "art" 出现在 "start" 中
+        // Return all matches directly, allowing overlapping highlights
+        // This correctly handles nested words, e.g. "art" appearing inside "start"
         return matches;
     }
 
     destroy() {
-        // 清理资源
+        // Clean up resources
         if (this.debounceTimer) {
             window.clearTimeout(this.debounceTimer);
             this.debounceTimer = null;
@@ -379,12 +379,12 @@ export class WordHighlighter implements PluginValue {
         this.cachedMatches.clear();
         this.wordTrie.clear();
         
-        // 从全局管理器中注销
+        // Unregister from the global manager
         highlighterManager.unregister(this);
     }
 }
 
-// 创建编辑器扩展
+// Create editor extensions
 export function createWordHighlighterExtension(
     vocabularyManager: VocabularyManager,
     shouldHighlightFile?: (filePath: string) => boolean
@@ -393,7 +393,7 @@ export function createWordHighlighterExtension(
         decorations: (value: WordHighlighter) => value.decorations,
     };
 
-    // 创建一个工厂函数来传递 vocabularyManager 和文件检查函数
+    // Create a factory function passing vocabularyManager and the file-check function
     class WordHighlighterWithManager extends WordHighlighter {
         constructor(view: EditorView) {
             super(view, vocabularyManager, shouldHighlightFile);
@@ -406,25 +406,25 @@ export function createWordHighlighterExtension(
     ];
 }
 
-// 获取光标下的词汇
+// Get the word under the cursor
 export function getWordUnderCursor(view: EditorView): string | null {
     const cursor = view.state.selection.main.head;
     const line = view.state.doc.lineAt(cursor);
     const lineText = line.text;
     const relativePos = cursor - line.from;
     
-    // 查找词汇边界
+    // Find word boundaries
     let start = relativePos;
     let end = relativePos;
     
     const wordRegex = /[a-zA-Z]/;
     
-    // 向前查找词汇开始
+    // Search backwards for the word start
     while (start > 0 && wordRegex.test(lineText[start - 1])) {
         start--;
     }
     
-    // 向后查找词汇结束
+    // Search forwards for the word end
     while (end < lineText.length && wordRegex.test(lineText[end])) {
         end++;
     }

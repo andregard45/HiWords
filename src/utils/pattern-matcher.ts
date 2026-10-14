@@ -1,10 +1,10 @@
 /**
- * 模式短语匹配工具
- * 支持使用 ... 占位符的跨单词短语匹配
+ * Pattern phrase matching utility
+ * Supports cross-word phrase matching with ... placeholders
  */
 
 /**
- * 解析短语，检测是否包含占位符
+ * Parse a phrase and detect placeholders
  */
 export function parsePhrase(phrase: string): {
     isPattern: boolean;
@@ -14,7 +14,7 @@ export function parsePhrase(phrase: string): {
     const trimmed = phrase.trim();
     
     if (trimmed.includes('...')) {
-        // 拆分短语，过滤空字符串
+        // Split the phrase and filter out empty strings
         const parts = trimmed.split('...').map(p => p.trim()).filter(p => p.length > 0);
         return {
             isPattern: true,
@@ -31,42 +31,42 @@ export function parsePhrase(phrase: string): {
 }
 
 /**
- * 转义正则表达式特殊字符
+ * Escape regex special characters
  */
 function escapeRegExp(string: string): string {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 /**
- * 构建模式短语的匹配正则表达式
- * @param parts 短语的各个固定部分
- * @returns 正则表达式
+ * Build the matching regex for a pattern phrase
+ * @param parts the fixed parts of the phrase
+ * @returns the regular expression
  */
 export function buildPatternRegex(parts: string[]): RegExp {
-    if (parts.length === 0) return /(?!)/; // 永远不匹配
+    if (parts.length === 0) return /(?!)/; // Never matches
     if (parts.length === 1) {
-        // 单个部分，使用边界匹配
+        // Single part: use boundary matching
         const escaped = escapeRegExp(parts[0]);
         return new RegExp(`\\b${escaped}\\b`, 'gi');
     }
     
-    // 多个部分，使用占位符连接
-    // 句子边界：不包含 . , ! ? ; : \n 等标点符号
+    // Multiple parts: join with placeholders
+    // Sentence boundary: excludes . , ! ? ; : \n and similar punctuation
     const sentenceBoundary = '[^.,!?;:\\n]*?';
     const escapedParts = parts.map(p => escapeRegExp(p));
     
-    // 构建模式：part1 [不跨句] part2 [不跨句] part3 ...
+    // Build the pattern: part1 [no sentence break] part2 [no sentence break] part3 ...
     const pattern = escapedParts.join(sentenceBoundary);
     
     return new RegExp(pattern, 'gi');
 }
 
 /**
- * 在文本中查找模式短语的所有匹配
- * @param text 要搜索的文本
- * @param parts 短语的各个固定部分
- * @param offset 文本在文档中的偏移量
- * @returns 匹配结果数组，包含匹配位置和各段位置
+ * Find all pattern-phrase matches in the text
+ * @param text the text to search
+ * @param parts the fixed parts of the phrase
+ * @param offset the text's offset within the document
+ * @returns array of matches with overall and per-segment positions
  */
 export function findPatternMatches(
     text: string,
@@ -87,7 +87,7 @@ export function findPatternMatches(
     
     if (parts.length === 0) return matches;
     
-    // 如果只有一个部分，直接匹配
+    // If there is only one part, match directly
     if (parts.length === 1) {
         const regex = new RegExp(`\\b${escapeRegExp(parts[0])}\\b`, 'gi');
         let match;
@@ -105,23 +105,23 @@ export function findPatternMatches(
         return matches;
     }
     
-    // 多部分匹配：手动查找各部分
+    // Multi-part matching: locate each part manually
     const lowerText = text.toLowerCase();
     const lowerParts = parts.map(p => p.toLowerCase());
     
-    // 从文本开始位置查找第一部分
+    // Find the first part from the start of the text
     let searchStart = 0;
     while (searchStart < text.length) {
         const firstPartIndex = lowerText.indexOf(lowerParts[0], searchStart);
         if (firstPartIndex === -1) break;
         
-        // 检查第一部分的单词边界
+        // Check word boundaries for the first part
         if (!isWordBoundary(text, firstPartIndex, firstPartIndex + parts[0].length)) {
             searchStart = firstPartIndex + 1;
             continue;
         }
         
-        // 尝试匹配后续部分
+        // Try to match subsequent parts
         const segments: Array<{from: number, to: number}> = [];
         segments.push({
             from: offset + firstPartIndex,
@@ -132,7 +132,7 @@ export function findPatternMatches(
         let allPartsMatched = true;
         
         for (let i = 1; i < parts.length; i++) {
-            // 在当前位置到下一个句子边界之间查找下一部分
+            // Find the next part between the current position and the next sentence boundary
             const nextBoundary = findNextSentenceBoundary(text, currentPos);
             const searchText = text.substring(currentPos, nextBoundary);
             const lowerSearchText = searchText.toLowerCase();
@@ -145,7 +145,7 @@ export function findPatternMatches(
             
             const absolutePartIndex = currentPos + partIndex;
             
-            // 检查单词边界
+            // Check word boundaries
             if (!isWordBoundary(text, absolutePartIndex, absolutePartIndex + parts[i].length)) {
                 allPartsMatched = false;
                 break;
@@ -177,7 +177,7 @@ export function findPatternMatches(
 }
 
 /**
- * 查找下一个句子边界的位置
+ * Find the position of the next sentence boundary
  */
 function findNextSentenceBoundary(text: string, startPos: number): number {
     const boundaries = ['.', ',', '!', '?', ';', ':', '\n'];
@@ -194,19 +194,19 @@ function findNextSentenceBoundary(text: string, startPos: number): number {
 }
 
 /**
- * 检查单词边界
- * 支持英文、中文、日语、韩语等字符
+ * Check word boundaries
+ * Supports English, Chinese, Japanese, Korean and other characters
  */
 function isWordBoundary(text: string, start: number, end: number): boolean {
     const before = start > 0 ? text[start - 1] : ' ';
     const after = end < text.length ? text[end] : ' ';
     
-    // 检查前后字符是否为单词字符
+    // Check whether surrounding characters are word characters
     const isWordChar = (char: string) => {
         return /[a-z0-9\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/iu.test(char);
     };
     
-    // CJK 字符不需要边界检查（中文、日语、韩语没有空格分词）
+    // CJK characters need no boundary check (Chinese, Japanese, Korean are not space-separated)
     const isCJK = (char: string) => {
         return /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/u.test(char);
     };

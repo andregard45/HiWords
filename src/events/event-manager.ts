@@ -4,36 +4,36 @@ import { t } from '../i18n';
 import { extractSentenceFromEditorMultiline } from '../utils/sentence-extractor';
 
 /**
- * 注册所有插件事件监听器
- * @param plugin HiWords 插件实例
+ * Register all plugin event listeners
+ * @param plugin the HiWords plugin instance
  */
 export function registerEvents(plugin: HiWordsPlugin) {
-    // 记录当前正在编辑的Canvas文件
+    // Track the Canvas file currently being edited
     const modifiedCanvasFiles = new Set<string>();
-    // 记录当前活动的 Canvas 文件
+    // Track the currently active Canvas file
     let activeCanvasFile: string | null = null;
     
-    // 监听文件变化
+    // Listen for file changes
     plugin.registerEvent(
         plugin.app.vault.on('modify', (file) => {
             if (file instanceof TFile && file.extension === 'canvas') {
-                // 检查是否是生词本文件
+                // Check whether it is a word book file
                 const isVocabBook = plugin.settings.vocabularyBooks.some(book => book.path === file.path);
                 if (isVocabBook) {
-                    // 只记录文件路径，不立即解析
+                    // Only record the file path; do not parse immediately
                     modifiedCanvasFiles.add(file.path);
                 }
             }
         })
     );
 
-    // 监听活动文件变化
+    // Listen for active-file changes
     const handleActiveLeafChange = async () => {
-            // 获取当前活动文件
+            // Get the current active file
             const activeFile = plugin.app.workspace.getActiveFile();
             
-            // 如果之前有活动的Canvas文件，且已经变化，并且现在切换到了其他文件
-            // 说明用户已经编辑完成并切换了焦点，此时解析该文件
+            // If there was an active Canvas file that changed and focus has now moved to another file
+            // the user has finished editing and switched focus; parse that file now
             if (activeCanvasFile && 
                 modifiedCanvasFiles.has(activeCanvasFile) && 
                 (!activeFile || activeFile.path !== activeCanvasFile)) {
@@ -41,31 +41,31 @@ export function registerEvents(plugin: HiWordsPlugin) {
                 await plugin.vocabularyManager.reloadVocabularyBook(activeCanvasFile);
                 plugin.refreshHighlighter();
                 
-                // 从待解析列表中移除
+                // Remove it from the pending-parse list
                 modifiedCanvasFiles.delete(activeCanvasFile);
             }
             
-            // 更新当前活动的Canvas文件
+            // Update the currently active Canvas file
             if (activeFile && activeFile.extension === 'canvas') {
                 activeCanvasFile = activeFile.path;
             } else {
                 activeCanvasFile = null;
                 
-                // 如果切换到非Canvas文件，处理所有待解析的文件
+                // If switching to a non-Canvas file, process all pending files
                 if (modifiedCanvasFiles.size > 0) {
-                    // 创建一个副本并清空原集合
+                    // Create a copy and clear the original set
                     const filesToProcess = Array.from(modifiedCanvasFiles);
                     modifiedCanvasFiles.clear();
                     
-                    // 处理所有待解析的文件
+                    // Process all pending files
                     for (const filePath of filesToProcess) {
                         await plugin.vocabularyManager.reloadVocabularyBook(filePath);
                     }
                     
-                    // 刷新高亮
+                    // Refresh highlights
                     plugin.refreshHighlighter();
                 } else {
-                    // 当切换文件时，可能需要更新高亮
+                    // Highlights may need updating when switching files
                     window.setTimeout(() => plugin.refreshHighlighter(), 100);
                 }
             }
@@ -74,27 +74,27 @@ export function registerEvents(plugin: HiWordsPlugin) {
     plugin.registerEvent(
         plugin.app.workspace.on('active-leaf-change', () => {
             void handleActiveLeafChange().catch(error => {
-                console.error('HiWords 处理活动文件变化失败:', error);
+                console.error('HiWords failed to handle active file change:', error);
             });
         })
     );
     
-    // 监听文件重命名/移动
+    // Listen for file rename/move
     const handleRename = async (file: TAbstractFile, oldPath: string) => {
             if (file instanceof TFile && (file.extension === 'canvas' || file.extension === 'hiwords')) {
-                // 检查旧路径是否在单词本列表中
+                // Check whether the old path is in the word book list
                 const bookIndex = plugin.settings.vocabularyBooks.findIndex(book => book.path === oldPath);
                 if (bookIndex !== -1) {
-                    // 更新为新路径
+                    // Update to the new path
                     plugin.settings.vocabularyBooks[bookIndex].path = file.path;
-                    // 更新名称（使用新的文件名）
+                    // Update the name (using the new file name)
                     plugin.settings.vocabularyBooks[bookIndex].name = file.basename;
                     await plugin.saveSettings();
                     
-                    // 删除旧路径的数据，避免重复计数
+                    // Delete data under the old path to avoid double counting
                     plugin.vocabularyManager.removeBookData(oldPath);
                     
-                    // 重新加载该单词本（使用新路径）
+                    // Reload this word book (using the new path)
                     await plugin.vocabularyManager.reloadVocabularyBook(file.path);
                     plugin.refreshHighlighter();
                     
@@ -106,12 +106,12 @@ export function registerEvents(plugin: HiWordsPlugin) {
     plugin.registerEvent(
         plugin.app.vault.on('rename', (file, oldPath) => {
             void handleRename(file, oldPath).catch(error => {
-                console.error('HiWords 处理文件重命名失败:', error);
+                console.error('HiWords failed to handle file rename:', error);
             });
         })
     );
     
-    // 注册编辑器右键菜单
+    // Register the editor context menu
     plugin.registerEvent(
         plugin.app.workspace.on('editor-menu', (menu, editor: Editor) => {
             const selection = editor.getSelection();
@@ -126,7 +126,7 @@ export function registerEvents(plugin: HiWordsPlugin) {
                     item
                         .setTitle(t(titleKey))
                         .onClick(() => {
-                            // 提取句子（支持跨行）
+                            // Extract the sentence (multi-line supported)
                             const sentence = extractSentenceFromEditorMultiline(editor);
                             plugin.addOrEditWord(word, sentence);
                         });

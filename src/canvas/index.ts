@@ -1,5 +1,5 @@
 /**
- * Canvas 相关功能模块
+ * Canvas-related module
  */
 
 export { CanvasEditor } from './canvas-editor';

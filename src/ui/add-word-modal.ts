@@ -4,7 +4,7 @@ import HiWordsPlugin from '../../main';
 import { t } from '../i18n';
 
 /**
- * 添加或编辑词汇的模态框
+ * Modal for adding or editing vocabulary
  */
 export class AddWordModal extends Modal {
     private plugin: HiWordsPlugin;
@@ -14,18 +14,18 @@ export class AddWordModal extends Modal {
     private definition: WordDefinition | null;
     private prefilledDefinition: string;
 
-    // 静态变量，记住用户上次选择的生词本（重启后丢失）
+    // Static variable remembering the user's last chosen word book (lost on restart)
     private static lastSelectedBookPath: string | null = null;
-    // 静态变量，记住用户上次选择的颜色（重启后丢失）
+    // Static variable remembering the user's last chosen color (lost on restart)
     private static lastSelectedColorValue: string | null = null;
 
     /**
-     * 构造函数
-     * @param app Obsidian 应用实例
-     * @param plugin 插件实例
-     * @param word 要添加或编辑的单词
-     * @param sentence 单词所在的句子（可选）
-     * @param isEditMode 是否为编辑模式
+     * Constructor
+     * @param app the Obsidian App instance
+     * @param plugin the plugin instance
+     * @param word the word to add or edit
+     * @param sentence the sentence containing the word (optional)
+     * @param isEditMode whether this is edit mode
      */
     constructor(app: App, plugin: HiWordsPlugin, word: string, sentence = '', isEditMode = false, prefilledDefinition = '', definition?: WordDefinition) {
         super(app);
@@ -36,7 +36,7 @@ export class AddWordModal extends Modal {
 
         this.prefilledDefinition = prefilledDefinition;
 
-        // 如果是编辑模式，获取单词的定义
+        // In edit mode, fetch the word's definition
         if (isEditMode) {
             this.definition = definition || this.plugin.vocabularyManager.getDefinition(word);
         } else {
@@ -60,7 +60,7 @@ export class AddWordModal extends Modal {
             return;
         }
 
-        // 单词输入（仅在添加模式下显示）
+        // Word input (shown only in add mode)
         let wordInput: HTMLInputElement | null = null;
         if (!this.isEditMode) {
             const wordContainer = contentEl.createDiv({ cls: 'hiwords-form-item' });
@@ -73,13 +73,13 @@ export class AddWordModal extends Modal {
             });
             wordInput.value = this.word;
 
-            // 如果没有预填充单词，自动聚焦到单词输入框
+            // If no word is prefilled, autofocus the word input
             if (!this.word) {
                 window.setTimeout(() => wordInput?.focus(), 50);
             }
         }
 
-        // 生词本选择
+        // Word book selection
         const bookSelectContainer = contentEl.createDiv({ cls: 'hiwords-form-item' });
         bookSelectContainer.createEl('label', { text: t('modals.book_label'), cls: 'hiwords-form-item-label' });
 
@@ -92,19 +92,19 @@ export class AddWordModal extends Modal {
         enabledBooks.forEach((book, index) => {
             const option = bookSelect.createEl('option', { text: book.name, value: book.path });
 
-            // 如果是编辑模式且当前词汇来自此生词本，则选中该选项
+            // In edit mode, select this option if the word comes from this book
             if (this.isEditMode && this.definition && this.definition.source === book.path) {
                 option.selected = true;
                 defaultBookSelected = true;
             }
-            // 如果是添加模式，优先选择上次使用的生词本
+            // In add mode, prefer the last used word book
             else if (!this.isEditMode && !defaultBookSelected) {
-                // 优先选择上次使用的生词本
+                // Prefer the last used word book
                 if (AddWordModal.lastSelectedBookPath && book.path === AddWordModal.lastSelectedBookPath) {
                     option.selected = true;
                     defaultBookSelected = true;
                 }
-                // 如果没有缓存或缓存的生词本不可用，选择第一个
+                // If there is no cache or the cached book is unavailable, pick the first one
                 else if (!AddWordModal.lastSelectedBookPath && index === 0) {
                     option.selected = true;
                     defaultBookSelected = true;
@@ -112,12 +112,12 @@ export class AddWordModal extends Modal {
             }
         });
 
-        // 如果是编辑模式，禁用生词本选择（不允许更改词汇所在的生词本）
+        // In edit mode, disable the book selector (moving entries across books is not allowed)
         if (this.isEditMode && this.definition) {
             bookSelect.disabled = true;
         }
 
-        // 颜色选择
+        // Color selection
         const colorSelectContainer = contentEl.createDiv({ cls: 'hiwords-form-item' });
         colorSelectContainer.createEl('label', { text: t('modals.color_label'), cls: 'hiwords-form-item-label' });
 
@@ -127,7 +127,7 @@ export class AddWordModal extends Modal {
             grayOption.selected = true;
         }
 
-        // Canvas 支持的颜色
+        // Colors supported by Canvas
         const colors = [
             { name: t('modals.color_red'), value: '1' },
             { name: t('modals.color_orange'), value: '2' },
@@ -140,17 +140,17 @@ export class AddWordModal extends Modal {
         colors.forEach(color => {
             const option = colorSelect.createEl('option', { text: color.name, value: color.value });
 
-            // 如果是编辑模式且当前词汇使用此颜色，则选中该选项
+            // In edit mode, select this option if the word uses this color
             if (this.isEditMode && this.definition && this.definition.color === color.value) {
                 option.selected = true;
             }
-            // 如果是添加模式，优先选择上次使用的颜色
+            // In add mode, prefer the last used color
             else if (!this.isEditMode && AddWordModal.lastSelectedColorValue === color.value) {
                 option.selected = true;
             }
         });
 
-        // 别名输入
+        // Alias input
         const aliasesContainer = contentEl.createDiv({ cls: 'hiwords-form-item' });
         aliasesContainer.createEl('label', { text: t('modals.aliases_label'), cls: 'hiwords-form-item-label' });
 
@@ -160,12 +160,12 @@ export class AddWordModal extends Modal {
             cls: 'setting-item-input word-aliases-input'
         });
 
-        // 如果是编辑模式且当前词汇有别名，则预填充别名
+        // In edit mode, prefill aliases if the word has them
         if (this.isEditMode && this.definition && this.definition.aliases && this.definition.aliases.length > 0) {
             aliasesInput.value = this.definition.aliases.join(', ');
         }
 
-        // 定义输入
+        // Definition input
         const definitionContainer = contentEl.createDiv({ cls: 'hiwords-form-item' });
         const definitionLabelContainer = definitionContainer.createDiv({ cls: 'hiwords-definition-label-container' });
         definitionLabelContainer.createEl('label', { text: t('modals.definition_label'), cls: 'hiwords-form-item-label' });
@@ -176,7 +176,7 @@ export class AddWordModal extends Modal {
         });
         definitionInput.rows = 5;
 
-        // 如果是编辑模式且当前词汇有定义，则预填充定义
+        // In edit mode, prefill the definition if present
         if (this.isEditMode && this.definition) {
             definitionInput.value = this.definition.rawDefinition || this.definition.definition;
         }
@@ -184,38 +184,38 @@ export class AddWordModal extends Modal {
             definitionInput.value = this.prefilledDefinition;
         }
 
-        // 智能聚焦逻辑
+        // Smart focus logic
         window.setTimeout(() => {
             if (!this.isEditMode && this.word) {
-                // 添加模式且有预填充单词时，聚焦到定义输入框
+                // Add mode with a prefilled word: focus the definition input
                 definitionInput.focus();
             } else if (this.isEditMode && this.definition) {
-                // 编辑模式时，聚焦到定义输入框（方便修改定义）
+                // Edit mode: focus the definition input (easier to edit definitions)
                 definitionInput.focus();
             }
-            // 注意：如果是添加模式且没有预填充单词，已经在第 64 行聚焦到单词输入框了
+            // Note: in add mode without a prefilled word, focus was already set to the word input earlier (line 64)
         }, 50);
 
-        // 按钮
+        // Buttons
         const buttonContainer = contentEl.createDiv({ cls: 'hiwords-modal-button-container' });
 
-        // 创建左侧容器（用于删除按钮或占位）
+        // Create the left container (delete button or spacer)
         const leftButtonGroup = buttonContainer.createDiv({ cls: 'hiwords-button-group-left' });
 
-        // 在编辑模式下添加删除按钮（左侧）
+        // In edit mode, add the delete button (left side)
         if (this.isEditMode && this.definition) {
             const deleteButton = leftButtonGroup.createEl('button', {
                 cls: 'delete-word-button',
             });
-            // 使用 Obsidian 的 setIcon 方法
+            // Use Obsidian's setIcon
             setIcon(deleteButton, 'trash');
             deleteButton.onclick = () => {
                 void (async () => {
-                    // 确认删除
+                    // Confirm deletion
                     const confirmed = await this.showDeleteConfirmation();
                     if (!confirmed) return;
 
-                    // 显示删除中提示
+                    // Show the deleting notice
                     const loadingNotice = new Notice(t('notices.deleting_word'), 0);
                     const definition = this.definition;
                     if (!definition) return;
@@ -230,7 +230,7 @@ export class AddWordModal extends Modal {
 
                         if (success) {
                             new Notice(t('notices.word_deleted'));
-                            // 刷新高亮
+                            // Refresh highlights
                             this.plugin.refreshHighlighter();
                             this.close();
                         } else {
@@ -238,25 +238,25 @@ export class AddWordModal extends Modal {
                         }
                     } catch (error) {
                         loadingNotice.hide();
-                        console.error('删除词汇时发生错误:', error);
+                        console.error('Error while deleting word:', error);
                         new Notice(t('notices.error_deleting_word'));
                     }
                 })();
             };
         }
 
-        // 创建右侧按钮组
+        // Create the right button group
         const rightButtonGroup = buttonContainer.createDiv({ cls: 'hiwords-button-group-right' });
 
         const cancelButton = rightButtonGroup.createEl('button', { text: t('modals.cancel_button') });
         cancelButton.onclick = () => this.close();
 
-        // 根据模式显示不同的按钮文本
+        // Show different button text depending on mode
         const buttonTextKey = this.isEditMode ? 'modals.save_button' : 'modals.add_button';
         const actionButton = rightButtonGroup.createEl('button', { text: t(buttonTextKey), cls: 'mod-cta' });
         actionButton.onclick = () => {
             void (async () => {
-                // 在添加模式下，从输入框获取单词
+                // In add mode, read the word from the input
                 let finalWord = this.word;
                 if (!this.isEditMode && wordInput) {
                     finalWord = wordInput.value.trim();
@@ -272,11 +272,11 @@ export class AddWordModal extends Modal {
                 const colorValue = colorSelect.value ? parseInt(colorSelect.value) : undefined;
                 const aliasesText = aliasesInput.value.trim();
 
-                // 处理别名
+                // Process aliases
                 let aliases: string[] | undefined = undefined;
                 if (aliasesText) {
                     aliases = aliasesText.split(',').map(alias => alias.trim().toLowerCase());
-                    // 去除空别名
+                    // Drop empty aliases
                     aliases = aliases.filter(alias => alias.length > 0);
                     if (aliases.length === 0) {
                         aliases = undefined;
@@ -288,7 +288,7 @@ export class AddWordModal extends Modal {
                     return;
                 }
 
-                // 显示加载中提示
+                // Show the loading notice
                 const loadingNotice = this.isEditMode ?
                     new Notice(t('notices.updating_word'), 0) :
                     new Notice(t('notices.adding_word'), 0);
@@ -297,7 +297,7 @@ export class AddWordModal extends Modal {
                     let success = false;
 
                     if (this.isEditMode && this.definition) {
-                        // 编辑模式：调用更新词汇的方法
+                        // Edit mode: call the update-word method
 
                         success = await this.plugin.vocabularyManager.updateWordInCanvas(
                             this.definition.source,
@@ -308,21 +308,21 @@ export class AddWordModal extends Modal {
                             aliases
                         );
 
-                        // 关闭加载提示
+                        // Dismiss the loading notice
                         loadingNotice.hide();
 
                         if (success) {
-                            // 使用格式化字符串替换
+                            // Use format-string replacement
                             const successMessage = t('notices.word_updated_success').replace('{0}', finalWord);
                             new Notice(successMessage);
-                            // 刷新高亮器
+                            // Refresh highlighters
                             this.plugin.refreshHighlighter();
                             this.close();
                         } else {
                             new Notice(t('notices.update_word_failed'));
                         }
                     } else {
-                        // 添加模式：调用添加词汇到 Canvas 的方法
+                        // Add mode: call the add-word-to-Canvas method
                         success = await this.plugin.vocabularyManager.addWordToCanvas(
                             selectedBook,
                             finalWord,
@@ -331,18 +331,18 @@ export class AddWordModal extends Modal {
                             aliases
                         );
 
-                        // 关闭加载提示
+                        // Dismiss the loading notice
                         loadingNotice.hide();
 
                         if (success) {
-                            // 保存用户选择的生词本到缓存
+                            // Cache the word book chosen by the user
                             AddWordModal.lastSelectedBookPath = selectedBook;
-                            // 保存用户选择的颜色到缓存（空值表示默认灰色）
+                            // Cache the color chosen by the user (empty means default gray)
                             AddWordModal.lastSelectedColorValue = colorSelect.value || '';
-                            // 使用格式化字符串替换
+                            // Use format-string replacement
                             const successMessage = t('notices.word_added_success').replace('{0}', finalWord);
                             new Notice(successMessage);
-                            // 刷新高亮器
+                            // Refresh highlighters
                             this.plugin.refreshHighlighter();
                             this.close();
                         } else {
@@ -359,8 +359,8 @@ export class AddWordModal extends Modal {
     }
 
     /**
-     * 显示删除确认对话框
-     * @returns Promise<boolean> 用户是否确认删除
+     * Show the delete confirmation dialog
+     * @returns Promise<boolean> whether the user confirmed deletion
      */
     private async showDeleteConfirmation(): Promise<boolean> {
         return new Promise((resolve) => {

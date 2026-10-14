@@ -1,19 +1,19 @@
 /**
- * Hi Words Plugin - 主入口文件
- * 统一导出所有模块
+ * Hi Words Plugin - main entry file
+ * Re-export all modules
  */
 
-// 核心业务逻辑
+// Core business logic
 export * from './core';
 
-// Canvas 相关功能
+// Canvas-related functionality
 export * from './canvas';
 
-// 用户界面组件
+// UI components
 export * from './ui';
 
-// 工具类和类型
+// Utilities and types
 export * from './utils';
 
-// 国际化
+// Internationalization
 export * from './i18n';

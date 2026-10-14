@@ -1,7 +1,7 @@
 import { CanvasData, CanvasNode, HiWordsSettings } from '../utils';
 import { CanvasParser } from './canvas-parser';
 
-// 固定布局参数
+// Fixed layout parameters
 const BASE_X = 50;
 const BASE_Y = 50;
 const DEFAULT_CARD_WIDTH = 260;
@@ -13,10 +13,10 @@ const GROUP_GAP = 12;
 const GROUP_COLUMNS = 2;
 
 /**
- * 简化的布局算法：使用固定参数的网格布局
- * - 左侧区域：3列固定网格（布局所有非分组节点：text 和 file）
- * - Mastered 分组内：2列固定网格
- * - 无复杂计算，位置可预测
+ * Simplified layout algorithm: grid layout with fixed parameters
+ * - Left area: fixed 3-column grid (lays out all non-group nodes: text and file)
+ * - Inside the Mastered group: fixed 2-column grid
+ * - No complex computation; positions are predictable
  */
 export function normalizeLayout(
   canvasData: CanvasData,
@@ -25,7 +25,7 @@ export function normalizeLayout(
 ) {
   if (!settings.autoLayoutEnabled) return;
 
-  // 从设置中读取卡片尺寸，如果未设置则使用默认值
+  // Read card sizes from settings; use defaults if unset
   const CARD_WIDTH = settings.cardWidth ?? DEFAULT_CARD_WIDTH;
   const CARD_HEIGHT = settings.cardHeight ?? DEFAULT_CARD_HEIGHT;
 
@@ -33,16 +33,16 @@ export function normalizeLayout(
     (n) => n.type === 'group' && n.label === 'Mastered'
   );
 
-  // 收集需要布局的节点（不在 Mastered 分组内的 text 和 file 节点）
+  // Collect nodes needing layout (text and file nodes outside the Mastered group)
   const movableNodes = canvasData.nodes.filter((n) => {
-    if (n.type === 'group') return false; // 排除分组
+    if (n.type === 'group') return false; // Exclude groups
     if (masteredGroup && parser.isNodeInGroup(n, masteredGroup)) return false;
     return true;
   });
 
   if (movableNodes.length === 0) return;
 
-  // 简单网格布局
+  // Simple grid layout
   for (let i = 0; i < movableNodes.length; i++) {
     const node = movableNodes[i];
     const col = i % COLUMNS;
@@ -56,7 +56,7 @@ export function normalizeLayout(
 }
 
 /**
- * 分组内部布局：简单的固定列网格
+ * Inside-group layout: simple fixed-column grid
  */
 export function layoutGroupInner(
   canvasData: CanvasData,
@@ -64,7 +64,7 @@ export function layoutGroupInner(
   settings: HiWordsSettings,
   parser: CanvasParser
 ) {
-  // 从设置中读取卡片尺寸，如果未设置则使用默认值
+  // Read card sizes from settings; use defaults if unset
   const CARD_WIDTH = settings.cardWidth ?? DEFAULT_CARD_WIDTH;
   const CARD_HEIGHT = settings.cardHeight ?? DEFAULT_CARD_HEIGHT;
 
@@ -74,7 +74,7 @@ export function layoutGroupInner(
   
   if (members.length === 0) return;
 
-  // 简单网格布局
+  // Simple grid layout
   for (let i = 0; i < members.length; i++) {
     const node = members[i];
     const col = i % GROUP_COLUMNS;
@@ -86,7 +86,7 @@ export function layoutGroupInner(
     node.height = CARD_HEIGHT;
   }
 
-  // 根据内容调整分组尺寸
+  // Resize the group to fit its content
   const rows = Math.ceil(members.length / GROUP_COLUMNS);
   const minWidth = GROUP_PADDING * 2 + GROUP_COLUMNS * CARD_WIDTH + (GROUP_COLUMNS - 1) * GROUP_GAP;
   const minHeight = GROUP_PADDING * 2 + rows * CARD_HEIGHT + (rows - 1) * GROUP_GAP;

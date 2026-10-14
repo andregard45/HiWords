@@ -34,15 +34,15 @@ export class HiWordsSidebarView extends ItemView {
     private currentWords: WordDefinition[] = [];
     private activeTab: 'learning' | 'mastered' = 'learning';
     private currentFile: TFile | null = null;
-    private firstLoadForFile = false; // 仅在切换到新文件后的首次渲染生效
-    private updateTimer: number | null = null; // 合并/防抖更新
-    private delegatedBound = false; // 是否已绑定根级事件委托
-    private lastInteractionTime = 0; // 最后一次交互的时间戳
-    private patternDefinitionsCache: WordDefinition[] = []; // 缓存模式短语列表
-    private normalDefinitionsCache: WordDefinition[] = []; // 缓存普通单词列表
-    private sectionTabStates: Map<string, number> = new Map(); // 记录每个单词当前激活的分区 Tab
-    private expandedWordStates: Map<string, boolean> = new Map(); // 记录用户手动展开/收起的词卡状态
-    private manualDetailMode = false; // 单词管理页打开详情时，不跟随当前文档扫描结果
+    private firstLoadForFile = false; // Applies only to the first render after switching to a new file
+    private updateTimer: number | null = null; // Coalesce/debounce updates
+    private delegatedBound = false; // Whether root-level event delegation is bound
+    private lastInteractionTime = 0; // Timestamp of the last interaction
+    private patternDefinitionsCache: WordDefinition[] = []; // Cached pattern-phrase list
+    private normalDefinitionsCache: WordDefinition[] = []; // Cached plain-word list
+    private sectionTabStates: Map<string, number> = new Map(); // Track the currently active section tab per word
+    private expandedWordStates: Map<string, boolean> = new Map(); // Track word cards manually expanded/collapsed by the user
+    private manualDetailMode = false; // When the word-management page opens details, do not follow the current document scan results
 
     constructor(leaf: WorkspaceLeaf, plugin: HiWordsPlugin) {
         super(leaf);
@@ -67,10 +67,10 @@ export class HiWordsSidebarView extends ItemView {
         container.addClass('hi-words-sidebar');
         this.bindDelegatedHandlers(container as HTMLElement);
         
-        // 初始化显示
+        // Initial display
         this.scheduleUpdate(0);
 
-        // 监听文件打开事件（使用 file-open 代替 active-leaf-change，避免侧边栏激活触发更新）
+        // Listen for file-open (instead of active-leaf-change) so activating the sidebar does not trigger updates
         this.registerEvent(
             this.app.workspace.on('file-open', (file: TFile | null) => {
                 if (this.isSupportedDocumentFile(file)) {
@@ -80,8 +80,8 @@ export class HiWordsSidebarView extends ItemView {
             })
         );
 
-        // 从单词管理页切回一个已打开的文档标签时，Obsidian 不一定触发 file-open。
-        // 这里只响应真实的 Markdown/PDF 文档 leaf，避免激活侧边栏自身时误刷新。
+        // Switching back from the word-management page to an already-open document tab does not necessarily fire file-open in Obsidian.
+        // Here we only respond to real Markdown/PDF document leaves to avoid spurious refreshes when activating the sidebar itself.
         this.registerEvent(
             this.app.workspace.on('active-leaf-change', (leaf: WorkspaceLeaf | null) => {
                 const file = this.getSupportedDocumentFileFromLeaf(leaf);
@@ -93,15 +93,15 @@ export class HiWordsSidebarView extends ItemView {
             })
         );
 
-        // 监听文件内容变化
+        // Listen for file content changes
         this.registerEvent(
             this.app.workspace.on('editor-change', () => {
-                // 延迟更新，避免频繁刷新
+                // Defer updates to avoid frequent refreshes
                 this.scheduleUpdate(500);
             })
         );
         
-        // 监听文件修改（包括 Canvas 文件和被引用的 Markdown 文件）
+        // Listen for file modifications (Canvas files and referenced Markdown files)
         this.registerEvent(
             this.app.vault.on('modify', (file) => {
                 if (file instanceof TFile) {
@@ -112,14 +112,14 @@ export class HiWordsSidebarView extends ItemView {
             })
         );
         
-        // 监听已掌握功能状态变化
+        // Listen for mastered-feature state changes
         this.registerEvent(
             (this.app.workspace as unknown as HiWordsWorkspaceEvents).on('hi-words:mastered-changed', () => {
                 this.scheduleUpdate(100);
             })
         );
         
-        // 监听设置变化（如模糊效果开关）
+        // Listen for setting changes (e.g. the blur toggle)
         this.registerEvent(
             (this.app.workspace as unknown as HiWordsWorkspaceEvents).on('hi-words:settings-changed', () => {
                 this.scheduleUpdate(100);
@@ -128,7 +128,7 @@ export class HiWordsSidebarView extends ItemView {
     }
 
     async onClose() {
-        // 清理资源
+        // Clean up resources
     }
 
     async focusWord(wordDef: WordDefinition, origin: 'document' | 'library' = 'document') {
@@ -190,7 +190,7 @@ export class HiWordsSidebarView extends ItemView {
     }
 
     /**
-     * 更新侧边栏视图
+     * Update the sidebar view
      */
     private async updateView() {
         if (this.manualDetailMode) {
@@ -200,16 +200,16 @@ export class HiWordsSidebarView extends ItemView {
         const activeFile = this.app.workspace.getActiveFile();
         
         if (!activeFile || (activeFile.extension !== 'md' && activeFile.extension !== 'pdf')) {
-            this.showEmptyState('请打开一个 Markdown 文档或 PDF 文件');
+            this.showEmptyState('Open a Markdown document or PDF file first');
             return;
         }
 
         if (activeFile === this.currentFile && this.currentWords.length > 0) {
-            // 文件未变化且已有数据，不需要重新扫描
+            // File unchanged and data already present; no rescan needed
             return;
         }
 
-        // 记录是否为切换到新文件
+        // Record whether this is a switch to a new file
         const isFileChanged = activeFile !== this.currentFile;
         this.currentFile = activeFile;
         if (isFileChanged) {
@@ -220,10 +220,10 @@ export class HiWordsSidebarView extends ItemView {
     }
 
     /**
-     * 合并/防抖更新：多事件密集触发时，避免排队大量 setTimeout
+     * Coalesced updates: avoid queueing many setTimeouts when events fire densely
      */
     private scheduleUpdate(delay: number) {
-        // 如果用户刚刚交互过（500ms 内），取消更新
+        // If the user interacted recently (within 500ms), cancel the update
         const timeSinceInteraction = Date.now() - this.lastInteractionTime;
         if (timeSinceInteraction < 500) {
             return;
@@ -264,8 +264,8 @@ export class HiWordsSidebarView extends ItemView {
     }
 
     /**
-     * 扫描当前文档中的生词
-     * 优化：使用缓存的单词列表，避免重复分类
+     * Scan the current document for known words
+     * Optimization: use cached word lists to avoid repeated classification
      */
     private async scanCurrentDocument() {
         if (!this.currentFile) return;
@@ -273,20 +273,20 @@ export class HiWordsSidebarView extends ItemView {
         try {
             let content: string;
             
-            // 根据文件类型提取内容
+            // Extract content based on file type
             if (this.currentFile.extension === 'pdf') {
                 content = await this.extractPDFText();
             } else {
-                // 使用 cachedRead 因为只读取不修改
+                // Use cachedRead since we only read, never modify
                 content = await this.app.vault.cachedRead(this.currentFile);
             }
 
-            // 优化：获取并缓存分类后的单词列表
+            // Optimization: fetch and cache classified word lists
             await this.updateDefinitionsCache();
 
             const foundWordsByKey = new Map<string, { wordDef: WordDefinition, position: number }>();
             
-            // 使用 Trie 一次扫描普通单词和别名，避免在大词库下逐词正则扫描当前文档
+            // Use a Trie to scan plain words and aliases in one pass, avoiding per-word regex scans on large dictionaries
             const trie = new Trie();
             for (const wordDef of this.normalDefinitionsCache) {
                 trie.addWord(wordDef.word, wordDef);
@@ -307,10 +307,10 @@ export class HiWordsSidebarView extends ItemView {
                 }
             }
             
-            // 扫描模式短语
+            // Scan pattern phrases
             for (const wordDef of this.patternDefinitionsCache) {
                 if (wordDef.patternParts && wordDef.patternParts.length > 0) {
-                    // 使用模式匹配
+                    // Use pattern matching
                     const matches = findPatternMatches(content, wordDef.patternParts, 0);
                     if (matches.length > 0) {
                         const position = matches[0].from;
@@ -326,7 +326,7 @@ export class HiWordsSidebarView extends ItemView {
                 }
             }
 
-            // 按照单词在文档中首次出现的位置排序
+            // Sort by each word's first occurrence position in the document
             const foundWordsWithPosition = [...foundWordsByKey.values()];
             foundWordsWithPosition.sort((a, b) => a.position - b.position);
             this.currentWords = foundWordsWithPosition.map(item => item.wordDef);
@@ -337,8 +337,8 @@ export class HiWordsSidebarView extends ItemView {
     }
     
     /**
-     * 更新单词定义缓存
-     * 将单词分类为普通单词和模式短语，避免重复判断
+     * Update the word-definition cache
+     * Classify words into plain words and pattern phrases to avoid repeated checks
      */
     private async updateDefinitionsCache(): Promise<void> {
         const allWordDefinitions = this.plugin.vocabularyManager.getStudyDefinitions();
@@ -356,14 +356,14 @@ export class HiWordsSidebarView extends ItemView {
     }
 
     /**
-     * 渲染生词列表
+     * Render the word list
      */
     private async renderWordList() {
         const container = this.containerEl.querySelector('.hi-words-sidebar');
         if (!container) return;
 
         container.empty();
-        // 确保事件委托已绑定（容器清空后仍然存在于同一根上）
+        // Ensure event delegation is bound (persists on the same root after the container is cleared)
         this.bindDelegatedHandlers(container as HTMLElement);
 
         if (this.currentWords.length === 0) {
@@ -371,39 +371,39 @@ export class HiWordsSidebarView extends ItemView {
             return;
         }
 
-        // 分组单词：未掌握和已掌握
+        // Group words: unmastered and mastered
         const unmasteredWords = this.currentWords.filter(word => !word.mastered);
         const masteredWords = this.currentWords.filter(word => word.mastered);
         
 
-        // 智能初始标签页选择：仅在切换到新文件后的首次加载时进行
+        // Smart initial tab selection: only on the first load after switching to a new file
         if (this.firstLoadForFile && this.activeTab === 'learning' && unmasteredWords.length === 0 && masteredWords.length > 0) {
             this.activeTab = 'mastered';
         }
-        // 首次渲染完成后，重置标记，避免用户点击时被强制切回
+        // After the first render, reset the flag so user clicks are not forced back
         this.firstLoadForFile = false;
         
-        // 创建 Tab 导航
+        // Create the tab navigation
         this.createTabNavigation(container as HTMLElement, unmasteredWords.length, masteredWords.length);
         
-        // 创建 Tab 内容
+        // Create the tab content
         await this.createTabContent(container as HTMLElement, unmasteredWords, masteredWords);
     }
 
     /**
-     * 创建 Tab 导航
+     * Create the tab navigation
      */
     private createTabNavigation(container: HTMLElement, learningCount: number, masteredCount: number) {
         const tabNav = container.createEl('div', { cls: 'hi-words-tab-nav' });
         
-        // 待学习 Tab
+        // To-learn tab
         const learningTab = tabNav.createEl('div', { 
             cls: `hi-words-tab ${this.activeTab === 'learning' ? 'active' : ''}`,
             attr: { 'data-tab': 'learning' }
         });
         learningTab.createEl('span', { text: `${t('sidebar.vocabulary_book')} (${learningCount})` });
         
-        // 已掌握 Tab (只有在启用功能时显示)
+        // Mastered tab (shown only when the feature is enabled)
         if (this.plugin.settings.enableMasteredFeature) {
             const masteredTab = tabNav.createEl('div', { 
                 cls: `hi-words-tab ${this.activeTab === 'mastered' ? 'active' : ''}`,
@@ -412,11 +412,11 @@ export class HiWordsSidebarView extends ItemView {
             masteredTab.createEl('span', { text: `${t('sidebar.mastered')} (${masteredCount})` });
         }
         
-        // 注意：Tab 点击事件由 bindDelegatedHandlers 中的事件委托统一处理，无需在此添加监听器
+        // Note: tab clicks are handled centrally by delegation in bindDelegatedHandlers; no listener needed here
     }
     
     /**
-     * 创建 Tab 内容
+     * Create the tab content
      */
     private async createTabContent(container: HTMLElement, unmasteredWords: WordDefinition[], masteredWords: WordDefinition[]) {
         if (this.activeTab === 'learning') {
@@ -435,19 +435,19 @@ export class HiWordsSidebarView extends ItemView {
     }
     
     /**
-     * 切换 Tab
+     * Switch tab
      */
     private switchTab(tab: 'learning' | 'mastered') {
         if (this.activeTab === tab) return;
         
         this.activeTab = tab;
         void this.renderWordList().catch(error => {
-            console.error('HiWords 重新渲染侧边栏失败:', error);
+            console.error('HiWords failed to re-render sidebar:', error);
         });
     }
     
     /**
-     * 创建单词列表
+     * Create the word list
      */
     private async createWordList(container: HTMLElement, words: WordDefinition[], isMastered: boolean) {
         const wordList = container.createEl('div', { cls: 'hi-words-word-list' });
@@ -458,10 +458,10 @@ export class HiWordsSidebarView extends ItemView {
     }
 
     /**
-     * 创建生词卡片
-     * @param container 容器元素
-     * @param wordDef 单词定义
-     * @param isMastered 是否为已掌握单词
+     * Create a word card
+     * @param container the container element
+     * @param wordDef the word definition
+     * @param isMastered whether the word is mastered
      */
     private async createWordCard(container: HTMLElement, wordDef: WordDefinition, isMastered = false) {
         const wordKey = this.getWordStateKey(wordDef);
@@ -471,27 +471,27 @@ export class HiWordsSidebarView extends ItemView {
             attr: { 'data-word-key': wordKey }
         });
         
-        // 设置 CSS 自定义属性，让 CSS 处理实际样式
+        // Set CSS custom properties and let CSS apply the actual styles
         if (wordDef.color) {
             const borderColor = mapCanvasColorToCSSVar(wordDef.color, 'var(--color-base-60)');
             card.style.setProperty('--word-card-accent-color', borderColor);
-            // 设置更明显的彩色背景
+            // Set a more vivid colored background
             const bgColor = getColorWithOpacity(borderColor, 0.1);
             card.style.setProperty('--word-card-bg-color', bgColor);
         }
 
-        // 词汇标题
+        // Word title
         const wordTitle = card.createEl('div', { cls: 'hi-words-word-title' });
         const wordTextEl = wordTitle.createEl('span', {
             text: wordDef.word,
             cls: 'hi-words-word-text'
         });
 
-        // 点击主词发音
+        // Click the headword to pronounce
         wordTextEl.addEventListener('click', (e) => {
             e.stopPropagation();
             void playWordTTS(this.plugin, wordDef.word, wordDef).catch(error => {
-                console.error('HiWords 播放发音失败:', error);
+                console.error('HiWords failed to play pronunciation:', error);
             });
         });
 
@@ -503,7 +503,7 @@ export class HiWordsSidebarView extends ItemView {
             }
         });
         
-        // 已掌握按钮（如果启用了功能）
+        // Mastered button (if the feature is enabled)
         if (this.plugin.settings.enableMasteredFeature && this.plugin.masteredService) {
             const buttonContainer = wordTitle.createEl('div', { 
                 cls: 'hi-words-title-mastered-button',
@@ -512,10 +512,10 @@ export class HiWordsSidebarView extends ItemView {
                 }
             });
             
-            // 设置图标（未掌握显示smile供用户点击标记为已掌握，已掌握显示frown供用户点击取消）
+            // Set the icon (unmastered shows smile to mark as mastered; mastered shows frown to undo)
             setIcon(buttonContainer, isMastered ? 'frown' : 'smile');
             
-            // 注意：点击事件由事件委托统一处理（bindDelegatedHandlers），无需在此添加监听器
+            // Note: clicks are handled by delegation (bindDelegatedHandlers); no listener needed here
         }
 
         const enableSectionTabs = this.plugin.settings.enableSectionTabs ?? true;
@@ -539,7 +539,7 @@ export class HiWordsSidebarView extends ItemView {
             ? sections[activeSectionIndex].content
             : wordDef.definition;
         
-        // 定义内容
+        // Definition content
         if (isExpanded && wordDef.card) {
             const definition = card.createEl('div', { cls: 'hi-words-word-definition hi-words-word-definition-structured' });
             const defContainer = definition.createEl('div', {
@@ -559,31 +559,31 @@ export class HiWordsSidebarView extends ItemView {
         } else if (isExpanded && contentToRender && contentToRender.trim()) {
             const definition = card.createEl('div', { cls: 'hi-words-word-definition' });
 
-            // 真正的 Markdown 内容容器
+            // The real Markdown content container
             const defContainer = definition.createEl('div', {
                 cls: this.plugin.settings.blurDefinitions ? 'hi-words-definition blur-enabled' : 'hi-words-definition'
             });
 
-            // 渲染 Markdown 内容
+            // Render Markdown content
             await this.renderSectionContent(defContainer, contentToRender);
         }
 
-        // 来源信息
+        // Source information
         if (isExpanded && !wordDef.source.endsWith('.hiwords')) {
             const source = card.createEl('div', { cls: 'hi-words-word-source' });
             const bookName = this.getBookNameFromPath(wordDef.source);
             source.createEl('span', { text: `${t('sidebar.source_prefix')}${bookName}`, cls: 'hi-words-source-text' });
 
-            // 添加点击事件到来源信息：导航到源文件
+            // Add a click handler on the source info: navigate to the source file
             source.addEventListener('click', (e) => {
-                e.stopPropagation(); // 阻止事件冒泡
+                e.stopPropagation(); // Stop event propagation
                 void this.navigateToSource(wordDef).catch(error => {
-                    console.error('HiWords 导航到来源失败:', error);
+                    console.error('HiWords failed to navigate to source:', error);
                 });
             });
         }
         
-        // 添加已掌握状态样式
+        // Add the mastered-state style
         if (isMastered) {
             card.addClass('hi-words-word-card-mastered');
         }
@@ -631,13 +631,13 @@ export class HiWordsSidebarView extends ItemView {
 
             window.requestAnimationFrame(() => this.bindInternalLinksAndTags(container, sourcePath, container));
         } catch (error) {
-            console.error('Markdown 渲染失败:', error);
+            console.error('Markdown rendering failed:', error);
             container.textContent = content;
         }
     }
 
     /**
-     * 在容器中创建空状态（不清空Tab导航）
+     * Create an empty state inside the container (keeps tab navigation)
      */
     private createEmptyState(container: HTMLElement, message: string) {
         const emptyState = container.createEl('div', { cls: 'hi-words-empty-state' });
@@ -645,7 +645,7 @@ export class HiWordsSidebarView extends ItemView {
     }
 
     /**
-     * 显示空状态（用于全局空状态，会清空整个容器）
+     * Show the empty state (global empty state; clears the whole container)
      */
     private showEmptyState(message: string) {
         const container = this.containerEl.querySelector('.hi-words-sidebar');
@@ -657,7 +657,7 @@ export class HiWordsSidebarView extends ItemView {
     }
 
     /**
-     * 根级事件委托：使用捕获阶段的 mousedown，解决首次点击 click 丢失
+     * Root-level delegation: capture-phase mousedown fixes lost first clicks
      */
     private bindDelegatedHandlers(root: HTMLElement) {
         if (this.delegatedBound) return;
@@ -669,7 +669,7 @@ export class HiWordsSidebarView extends ItemView {
                     : null;
                 if (!target) return;
 
-                // Tab 切换
+                // Tab switching
                 const tabEl = target.closest<HTMLElement>('.hi-words-tab');
                 if (tabEl && root.contains(tabEl)) {
                     e.preventDefault();
@@ -710,13 +710,13 @@ export class HiWordsSidebarView extends ItemView {
                     return;
                 }
 
-                // 展开/收起词卡
+                // Expand/collapse word cards
                 const toggleEl = target.closest<HTMLElement>('.hi-words-card-toggle-spacer');
                 if (toggleEl && root.contains(toggleEl)) {
                     e.preventDefault();
                     e.stopPropagation();
                     
-                    // 记录交互时间并取消所有待执行的更新
+                    // Record interaction time and cancel pending updates
                     this.lastInteractionTime = Date.now();
                     if (this.updateTimer !== null) {
                         window.clearTimeout(this.updateTimer);
@@ -734,7 +734,7 @@ export class HiWordsSidebarView extends ItemView {
                     return;
                 }
 
-                // 已掌握/取消按钮
+                // Mastered/undo button
                 const masteredBtn = target.closest<HTMLElement>('.hi-words-title-mastered-button');
                 if (masteredBtn && root.contains(masteredBtn)) {
                     e.preventDefault();
@@ -760,7 +760,7 @@ export class HiWordsSidebarView extends ItemView {
                                         void this.updateView();
                                     }, 100);
                                 } catch (err) {
-                                    console.error('切换已掌握状态失败:', err);
+                                    console.error('Failed to toggle mastered state:', err);
                                 }
                             })();
                         }
@@ -768,7 +768,7 @@ export class HiWordsSidebarView extends ItemView {
                     return;
                 }
 
-                // 来源跳转
+                // Source navigation
                 const sourceEl = target.closest<HTMLElement>('.hi-words-word-source');
                 if (sourceEl && root.contains(sourceEl)) {
                     e.preventDefault();
@@ -780,7 +780,7 @@ export class HiWordsSidebarView extends ItemView {
                         const detail = this.currentWords.find((w) => w.word === word);
                         if (detail) {
                             void this.navigateToSource(detail).catch(error => {
-                                console.error('HiWords 导航到来源失败:', error);
+                                console.error('HiWords failed to navigate to source:', error);
                             });
                         }
                     }
@@ -793,37 +793,37 @@ export class HiWordsSidebarView extends ItemView {
     }
 
     /**
-     * 从路径获取生词本名称
+     * Get the word book name from the path
      */
     private getBookNameFromPath(path: string): string {
         const book = this.plugin.settings.vocabularyBooks.find(b => b.path === path);
-        return book ? book.name : path.split('/').pop()?.replace('.canvas', '') || '未知';
+        return book ? book.name : path.split('/').pop()?.replace('.canvas', '') || 'Unknown';
     }
 
     /**
-     * 转义正则表达式特殊字符
+     * Escape regex special characters
      */
     private escapeRegExp(string: string): string {
         return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     }
 
     /**
-     * 从 PDF 文件中提取文本内容
+     * Extract text content from a PDF file
      */
     private async extractPDFText(): Promise<string> {
         try {
-            // 等待 PDF 视图加载并获取文本层内容
+            // Wait for the PDF view to load and get the text layer content
             await new Promise(resolve => window.setTimeout(resolve, 500));
             
-            // 查找所有 PDF 文本层
+            // Find all PDF text layers
             const textLayers = activeDocument.querySelectorAll('.textLayer');
             let extractedText = '';
             
             textLayers.forEach((textLayer: Element) => {
-                // 检查是否在当前活动的 PDF 视图中
+                // Check whether it belongs to the currently active PDF view
                 const pdfContainer = textLayer.closest('.pdf-container, .mod-pdf');
                 if (pdfContainer) {
-                    // 获取文本层中的所有文本内容
+                    // Collect all text inside the text layer
                     const textSpans = textLayer.querySelectorAll('span[role="presentation"]');
                     textSpans.forEach((span: Element) => {
                         const text = span.textContent || '';
@@ -831,11 +831,11 @@ export class HiWordsSidebarView extends ItemView {
                             extractedText += text + ' ';
                         }
                     });
-                    extractedText += '\n'; // 每个文本层后添加换行
+                    extractedText += '\n'; // Append a newline after each text layer
                 }
             });
             
-            // 如果没有找到文本层，尝试从 PDF 视图中提取
+            // If no text layer is found, try extracting from the PDF view itself
             if (!extractedText.trim()) {
                 const pdfViews = activeDocument.querySelectorAll('.pdf-container, .mod-pdf');
                 pdfViews.forEach((pdfView: Element) => {
@@ -848,19 +848,19 @@ export class HiWordsSidebarView extends ItemView {
             
             return extractedText.trim();
         } catch (error) {
-            console.error('PDF 文本提取失败:', error);
+            console.error('PDF text extraction failed:', error);
             return '';
         }
     }
 
     /**
-     * 构建用于扫描文档的正则。
-     * - 对仅包含拉丁字符的词：使用 \b 边界避免误匹配，如 "art" 不匹配 "start"。
-     * - 对包含日语/CJK/韩语的词：不使用 \b（因为这些文本常无空格），并使用 Unicode 标志。
+     * Build the regex used to scan documents.
+     * - For Latin-only words: use \b boundaries to avoid false matches, e.g. "art" must not match "start".
+     * - For words containing Japanese/CJK/Korean: skip \b (such text often lacks spaces) and use the Unicode flag.
      */
     private buildSearchRegex(term: string): RegExp {
         const escaped = this.escapeRegExp(term);
-        // 检测是否包含 CJK、日语或韩语脚本
+        // Detect CJK, Japanese or Korean scripts
         const hasAsianScript = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/u.test(term);
         const pattern = hasAsianScript ? `${escaped}` : `\\b${escaped}\\b`;
         const flags = hasAsianScript ? 'giu' : 'gi';
@@ -868,12 +868,12 @@ export class HiWordsSidebarView extends ItemView {
     }
 
     /**
-     * 为侧边栏渲染内容绑定内部链接与标签交互：
-     * - internal-link: 悬停触发原生 hover 预览；点击跳转
-     * - tag: 点击打开/复用搜索视图
+     * Bind internal-link and tag interactions for sidebar-rendered content:
+     * - internal-link: hover triggers the native hover preview; click navigates
+     * - tag: click opens/reuses the search view
      */
     private bindInternalLinksAndTags(root: HTMLElement, sourcePath: string, hoverParent: HTMLElement) {
-        // 内部链接
+        // Internal link
         root.querySelectorAll('a.internal-link').forEach((a) => {
             const linkEl = a as HTMLAnchorElement;
             const linktext = (linkEl.getAttribute('href') || linkEl.dataset.href || '').trim();
@@ -894,12 +894,12 @@ export class HiWordsSidebarView extends ItemView {
                 evt.preventDefault();
                 evt.stopPropagation();
                 void this.app.workspace.openLinkText(linktext, sourcePath).catch(error => {
-                    console.error('HiWords 打开内部链接失败:', error);
+                    console.error('HiWords failed to open internal link:', error);
                 });
             });
         });
 
-        // 标签
+        // Tag
         root.querySelectorAll('a.tag').forEach((a) => {
             const tagEl = a as HTMLAnchorElement;
             const query = (tagEl.getAttribute('href') || tagEl.textContent || '').trim();
@@ -912,7 +912,7 @@ export class HiWordsSidebarView extends ItemView {
         });
     }
 
-    /** 打开或复用全局搜索视图并设置查询 */
+    /** Open or reuse the global search view and set the query */
     private openOrUpdateSearch(query: string) {
         try {
             const leaves = this.app.workspace.getLeavesOfType('search');
@@ -920,36 +920,36 @@ export class HiWordsSidebarView extends ItemView {
                 const view = leaves[0].view as SearchViewLike;
                 view.setQuery?.(query);
                 void this.app.workspace.revealLeaf(leaves[0]).catch(error => {
-                    console.error('HiWords 打开搜索视图失败:', error);
+                    console.error('HiWords failed to open search view:', error);
                 });
                 return;
             }
 
-            // 如果搜索视图不存在，提示用户启用搜索插件
-            new Notice(t('notices.enable_search_plugin') || '请先启用核心搜索插件');
+            // If the search view does not exist, prompt the user to enable the Search core plugin
+            new Notice(t('notices.enable_search_plugin') || 'Please enable the core Search plugin first');
         } catch (e) {
-            console.error('打开搜索失败:', e);
+            console.error('Failed to open search:', e);
         }
     }
 
     /**
-     * 导航到单词源文件
+     * Navigate to the word's source file
      */
     private async navigateToSource(wordDef: WordDefinition) {
         try {
             const file = this.app.vault.getAbstractFileByPath(wordDef.source);
             if (file instanceof TFile) {
-                // 如果是 Canvas 文件，直接打开
+                // If it is a Canvas file, open it directly
                 if (file.extension === 'canvas') {
                     await this.app.workspace.openLinkText(file.path, '');
                 } else {
-                    // 如果是 Markdown 文件，打开并尝试定位到单词
+                    // If it is a Markdown file, open it and try to locate the word
                     await this.app.workspace.openLinkText(file.path, '');
-                    // 等待一个短暂时间让文件加载
+                    // Wait briefly for the file to load
                     window.setTimeout(() => {
                         const activeView = this.app.workspace.getActiveViewOfType(MarkdownView);
                         if (activeView && activeView.file?.path === file.path) {
-                            // 尝试在文件中查找单词
+                            // Try to find the word in the file
                             const editor = activeView.editor;
                             const content = editor.getValue();
                             const wordIndex = content.toLowerCase().indexOf(wordDef.word.toLowerCase());
@@ -963,16 +963,16 @@ export class HiWordsSidebarView extends ItemView {
                 }
             }
         } catch (error) {
-            console.error('导航到源文件失败:', error);
+            console.error('Failed to navigate to source file:', error);
         }
     }
 
 
     /**
-     * 强制刷新视图
+     * Force-refresh the view
      */
     public refresh() {
-        this.currentFile = null; // 强制重新扫描
+        this.currentFile = null; // Force a rescan
         this.scheduleUpdate(0);
     }
 }

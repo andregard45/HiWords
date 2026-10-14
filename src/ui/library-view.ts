@@ -78,14 +78,14 @@ class BookDisplaySettingsModal extends Modal {
             this.detailSections = DEFAULT_WORD_CARD_DETAIL_SECTIONS.filter(section => !this.previewSections.includes(section));
             this.hiddenSections = [];
             void this.saveAndClose().catch(error => {
-                console.error('HiWords 保存显示设置失败:', error);
+                console.error('HiWords failed to save display setting:', error);
             });
         };
 
         const save = actions.createEl('button', { text: t('library.save_display_settings'), cls: 'mod-cta' });
         save.onclick = () => {
             void this.saveAndClose().catch(error => {
-                console.error('HiWords 保存显示设置失败:', error);
+                console.error('HiWords failed to save display setting:', error);
             });
         };
     }
@@ -373,7 +373,7 @@ export class HiWordsLibraryView extends ItemView {
                 await this.render();
                 new Notice(t('notices.vocabulary_refreshed'));
             })().catch(error => {
-                console.error('HiWords 刷新词库失败:', error);
+                console.error('HiWords failed to refresh dictionaries:', error);
             });
         };
 
@@ -413,7 +413,7 @@ export class HiWordsLibraryView extends ItemView {
                     this.resetVisibleWords();
                     await this.render();
                 })().catch(error => {
-                    console.error('HiWords 切换词库失败:', error);
+                    console.error('HiWords failed to toggle dictionary:', error);
                 });
             };
 
@@ -456,7 +456,7 @@ export class HiWordsLibraryView extends ItemView {
                         this.clearCaches();
                         await this.render();
                     })().catch(error => {
-                        console.error('HiWords 更新显示设置失败:', error);
+                        console.error('HiWords failed to update display setting:', error);
                     });
                 }).open();
             });
@@ -496,7 +496,7 @@ export class HiWordsLibraryView extends ItemView {
             this.statusFilter = statusSelect.value as StatusFilter;
             this.resetVisibleWords();
             void this.render().catch(error => {
-                console.error('HiWords 渲染词库状态筛选失败:', error);
+                console.error('HiWords failed to render dictionary status filter:', error);
             });
         };
 
@@ -510,7 +510,7 @@ export class HiWordsLibraryView extends ItemView {
             this.typeFilter = typeSelect.value as TypeFilter;
             this.resetVisibleWords();
             void this.render().catch(error => {
-                console.error('HiWords 渲染词库类型筛选失败:', error);
+                console.error('HiWords failed to render dictionary type filter:', error);
             });
         };
 
@@ -609,7 +609,7 @@ export class HiWordsLibraryView extends ItemView {
         this.loadMoreObserver = new IntersectionObserver((entries) => {
             if (!entries.some(entry => entry.isIntersecting)) return;
             void this.loadMoreWordsIfNeeded(false).catch(error => {
-                console.error('HiWords 加载更多词条失败:', error);
+                console.error('HiWords failed to load more entries:', error);
             });
         }, {
             root: content.classList.contains('is-narrow') ? null : this.detailEl,
@@ -633,7 +633,7 @@ export class HiWordsLibraryView extends ItemView {
         row.onclick = () => {
             this.removeTooltip();
             void this.plugin.showWordInSidebar(definition, 'library').catch(error => {
-                console.error('HiWords 打开词卡详情失败:', error);
+                console.error('HiWords failed to open word card details:', error);
             });
         };
         row.onkeydown = (event) => {
@@ -641,7 +641,7 @@ export class HiWordsLibraryView extends ItemView {
             event.preventDefault();
             this.removeTooltip();
             void this.plugin.showWordInSidebar(definition, 'library').catch(error => {
-                console.error('HiWords 打开词卡详情失败:', error);
+                console.error('HiWords failed to open word card details:', error);
             });
         };
         if (definition.color) {
@@ -660,7 +660,7 @@ export class HiWordsLibraryView extends ItemView {
         word.onclick = (event) => {
             event.stopPropagation();
             void playWordTTS(this.plugin, definition.word, definition).catch(error => {
-                console.error('HiWords 播放发音失败:', error);
+                console.error('HiWords failed to play pronunciation:', error);
             });
         };
         word.onmouseenter = () => this.scheduleTooltip(word, definition);
@@ -670,7 +670,7 @@ export class HiWordsLibraryView extends ItemView {
             event.preventDefault();
             event.stopPropagation();
             void playWordTTS(this.plugin, definition.word, definition).catch(error => {
-                console.error('HiWords 播放发音失败:', error);
+                console.error('HiWords failed to play pronunciation:', error);
             });
         };
         if (definition.aliases?.length) {
@@ -696,7 +696,7 @@ export class HiWordsLibraryView extends ItemView {
                 this.clearCaches();
                 await this.render();
             })().catch(error => {
-                console.error('HiWords 切换已掌握状态失败:', error);
+                console.error('HiWords failed to toggle mastered state:', error);
             });
         });
     }
@@ -753,7 +753,7 @@ export class HiWordsLibraryView extends ItemView {
         title.onclick = (event) => {
             event.stopPropagation();
             void playWordTTS(this.plugin, definition.word, definition).catch(error => {
-                console.error('HiWords 播放发音失败:', error);
+                console.error('HiWords failed to play pronunciation:', error);
             });
         };
 
@@ -770,7 +770,7 @@ export class HiWordsLibraryView extends ItemView {
                 pronunciationVariant: this.plugin.settings.pronunciationVariant || 'us',
                 onPronunciationClick: (variant) => {
                     void playWordTTS(this.plugin, definition.word, definition, variant).catch(error => {
-                        console.error('HiWords 播放发音失败:', error);
+                        console.error('HiWords failed to play pronunciation:', error);
                     });
                 },
                 display: this.plugin.getVocabularyBookDisplaySettings(definition.source),
@@ -787,7 +787,7 @@ export class HiWordsLibraryView extends ItemView {
                 onOpenDetail: () => {
                     this.removeTooltip();
                     void this.plugin.showWordInSidebar(definition, 'library').catch(error => {
-                        console.error('HiWords 打开词卡详情失败:', error);
+                        console.error('HiWords failed to open word card details:', error);
                     });
                 },
             });
@@ -866,7 +866,7 @@ export class HiWordsLibraryView extends ItemView {
         button.onclick = (event) => {
             event.stopPropagation();
             void Promise.resolve(onClick()).catch(error => {
-                console.error('HiWords 执行图标按钮操作失败:', error);
+                console.error('HiWords failed to execute icon button action:', error);
             });
         };
         return button;

@@ -1,12 +1,12 @@
 /* HiWords Plugin Styles */
 
-/* 词汇高亮样式 */
+/* Vocabulary highlight styles */
 .hi-words-highlight {
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
-/* 下划线样式 */
+/* Underline style */
 .hi-words-highlight[data-style="underline"] {
     border-bottom: 2px dashed var(--word-highlight-color, var(--text-muted));
 }
@@ -16,7 +16,7 @@
     border-bottom: 2px solid var(--word-highlight-color, var(--text-muted));
 }
 
-/* 背景高亮样式 */
+/* Background highlight style */
 .hi-words-highlight[data-style="background"] {
     background-color: color-mix(in srgb, var(--word-highlight-color, var(--text-muted)) 25%, transparent);
     border-radius: 3px;
@@ -27,7 +27,7 @@
     background-color: color-mix(in srgb, var(--word-highlight-color, var(--text-muted)) 35%, transparent);
 }
 
-/* 粗体样式 */
+/* Bold style */
 .hi-words-highlight[data-style="bold"] {
     font-weight: 600;
     color: var(--word-highlight-color, var(--text-muted));
@@ -37,7 +37,7 @@
     background-color: color-mix(in srgb, var(--word-highlight-color, var(--text-muted)) 15%, transparent);
 }
 
-/* 点状下划线样式 */
+/* Dotted underline style */
 .hi-words-highlight[data-style="dotted"] {
     border-bottom: 2px dotted var(--word-highlight-color, var(--text-muted));
 }
@@ -47,7 +47,7 @@
     border-bottom: 2px solid var(--word-highlight-color, var(--text-muted));
 }
 
-/* 波浪线样式 */
+/* Wavy underline style */
 .hi-words-highlight[data-style="wavy"] {
     border-bottom: 2px solid var(--word-highlight-color, var(--text-muted));
 }
@@ -56,7 +56,7 @@
     background-color: color-mix(in srgb, var(--word-highlight-color, var(--text-muted)) 15%, transparent);
 }
 
-/* 工具提示样式 */
+/* Tooltip style */
 .hi-words-tooltip {
     position: absolute;
     z-index: 1000;
@@ -124,7 +124,7 @@
     cursor: pointer;
 }
 
-/* 当标题在容器中时，移除下边距以保持对齐 */
+/* Remove bottom margin when the title is inside the container to keep alignment */
 .hi-words-tooltip-title-container .hi-words-tooltip-title {
     margin-bottom: 0;
     padding-bottom: 0;
@@ -135,7 +135,7 @@
     line-height: 1.5;
     font-size: 14px;
     margin-bottom: 6px;
-    /* 限制悬停预览高度，避免过长内容撑开 */
+    /* Limit hover-preview height so long content does not blow up the layout */
     max-height: 280px;
     overflow: auto;
 }
@@ -161,7 +161,7 @@
     background-color: var(--background-modifier-hover);
 }
 
-/* Markdown 内容样式 - Tooltip */
+/* Markdown content styles - Tooltip */
 .hi-words-tooltip-content p {
     margin: 0 0 8px 0;
 }
@@ -198,14 +198,14 @@
     margin: 8px 0;
 }
 
-/* Markdown 内容样式 - Tooltip 分隔线 */
+/* Markdown content styles - Tooltip divider */
 .hi-words-tooltip-content hr {
     border: none;
     border-top: 1px solid var(--background-modifier-border);
     margin: 8px 0;
 }
 
-/* Markdown 标题间距优化 - Tooltip */
+/* Markdown heading spacing optimization - Tooltip */
 .hi-words-tooltip-content h1,
 .hi-words-tooltip-content h2,
 .hi-words-tooltip-content h3,
@@ -213,22 +213,22 @@
 .hi-words-tooltip-content h5,
 .hi-words-tooltip-content h6 {
     margin: 6px 0 4px 0;
-    /* 减小上下间距 */
+    /* Reduce vertical spacing */
     line-height: 1.25;
-    /* 更紧凑的行高 */
+    /* Tighter line height */
 }
 
 .hi-words-tooltip-content> :first-child {
     margin-top: 0;
-    /* 首元素无多余顶距 */
+    /* No extra top margin on the first element */
 }
 
 .hi-words-tooltip-content> :last-child {
     margin-bottom: 0;
-    /* 尾元素无多余底距 */
+    /* No extra bottom margin on the last element */
 }
 
-/* Markdown 内容样式 - 侧边栏单词卡片 */
+/* Markdown content styles - Sidebar word cards */
 .hi-words-definition p {
     margin: 0 0 8px 0;
 }
@@ -265,14 +265,14 @@
     margin: 8px 0;
 }
 
-/* Markdown 内容样式 - 侧边栏单词卡片 分隔线 */
+/* Markdown content styles - Sidebar word-card divider */
 .hi-words-definition hr {
     border: none;
     border-top: 1px solid var(--background-modifier-border);
     margin: 8px 0;
 }
 
-/* Markdown 标题间距优化 - 侧边栏定义 */
+/* Markdown heading spacing optimization - Sidebar definitions */
 .hi-words-definition h1,
 .hi-words-definition h2,
 .hi-words-definition h3,
@@ -291,7 +291,7 @@
     margin-bottom: 0;
 }
 
-/* 模糊定义内容功能 */
+/* Blurred definition feature */
 .hi-words-definition.blur-enabled {
     filter: blur(4px);
     transition: filter 0.3s ease;
@@ -326,21 +326,21 @@
     transition: opacity 0.2s ease;
 }
 
-/* 设置页面样式 */
-/* 标题和按钮容器 */
+/* Settings page styles */
+/* Title and button container */
 .hi-words-header-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-/* 按钮容器样式 */
+/* Button container styles */
 .hi-words-button-container {
     display: flex;
     align-items: center;
 }
 
-/* 移除 Setting 组件的默认样式 */
+/* Remove the Setting component default styles */
 .hi-words-add-button-setting {
     border: none;
     padding: 0;
@@ -399,7 +399,7 @@
     }
 }
 
-/* 添加词汇模态框样式 */
+/* Add-word modal styles */
 .hiwords-word-definition-input {
     width: 100%;
     min-height: 100px;
@@ -418,7 +418,7 @@
     margin-left: 8px;
 }
 
-/* 按钮容器左右分组 */
+/* Button container left/right grouping */
 .hiwords-modal-button-container .hiwords-button-group-left {
     display: flex;
     gap: 8px;
@@ -428,10 +428,10 @@
     display: flex;
     gap: 8px;
     margin-left: auto;
-    /* 确保右侧按钮组始终在右侧 */
+    /* Keep the right button group pinned to the right */
 }
 
-/* 表单元素样式 */
+/* Form element styles */
 .hiwords-form-item {
     margin: 8px 0 20px 0;
 }
@@ -450,7 +450,7 @@
     width: 100%;
 }
 
-/* 侧边栏样式 */
+/* Sidebar styles */
 .hi-words-sidebar {
     display: flex;
     flex-direction: column;
@@ -461,7 +461,7 @@
     box-sizing: border-box;
 }
 
-/* Tab 导航样式 - 现代化设计 */
+/* Tab navigation styles - modern design */
 .hi-words-tab-nav {
     display: flex;
     flex-shrink: 0;
@@ -526,7 +526,7 @@
     pointer-events: none;
 }
 
-/* 添加微妙的动画效果 */
+/* Add subtle animation effects */
 .hi-words-tab::after {
     content: '';
     position: absolute;
@@ -549,7 +549,7 @@
     background: var(--text-on-accent);
 }
 
-/* 响应式设计 */
+/* Responsive design */
 @media (max-width: 480px) {
     .hi-words-tab {
         padding: 8px 12px;
@@ -562,7 +562,7 @@
         padding: 3px;
     }
 
-    /* 小屏幕下强制单栏布局 */
+    /* Force a single-column layout on small screens */
     .hi-words-word-list {
         grid-template-columns: 1fr;
     }
@@ -677,7 +677,7 @@
     transform: scale(0.95);
 }
 
-/* 已掌握状态的按钮样式 */
+/* Mastered-state button styles */
 .hi-words-word-card-mastered .hi-words-title-mastered-button {
     color: var(--text-normal);
 }
@@ -687,7 +687,7 @@
     background-color: color-mix(in srgb, var(--color-green) 15%, transparent);
 }
 
-/* 弹出框标题容器样式 */
+/* Popover title container styles */
 .hi-words-tooltip-title-container {
     display: flex;
     align-items: center;
@@ -698,7 +698,7 @@
     padding-bottom: 4px;
 }
 
-/* 弹出框标题中的已掌握按钮样式 */
+/* Mastered button styles inside popover titles */
 .hi-words-tooltip-title-mastered-button {
     display: flex;
     align-items: center;
@@ -740,7 +740,7 @@
     z-index: 1;
     flex: 1;
     min-width: 0;
-    /* 允许文本截断 */
+    /* Allow text truncation */
     border-radius: 4px;
     padding: 2px 4px;
     transition: background-color 0.2s ease;
@@ -766,7 +766,7 @@
     min-width: 0;
 }
 
-/* 结构化 .hiwords 词卡 */
+/* Structured .hiwords word cards */
 .hi-words-structured-card {
     display: flex;
     flex-direction: column;
@@ -1321,7 +1321,7 @@
     background: var(--background-secondary);
 }
 
-/* .hiwords 词库预览 */
+/* .hiwords dictionary preview */
 .modal.hi-words-pack-preview-modal-container {
     width: min(720px, calc(100vw - 32px));
     max-width: calc(100vw - 32px);
@@ -1456,7 +1456,7 @@
     line-height: 1.5;
 }
 
-/* 响应式调整 */
+/* Responsive adjustments */
 @media (max-width: 768px) {
     .hi-words-sidebar {
         padding: 12px;
@@ -1477,11 +1477,11 @@
 
     .hi-words-word-card:hover {
         transform: none;
-        /* 移动设备上禁用变形效果 */
+        /* Disable transform effects on mobile */
     }
 }
 
-/* 已掌握分组样式 */
+/* Mastered group styles */
 .hi-words-mastered-section {
     margin-top: 20px;
     margin-bottom: 20px;
@@ -1512,7 +1512,7 @@
     opacity: 1;
 }
 
-/* 已掌握单词的特殊样式 */
+/* Special styles for mastered words */
 .hi-words-mastered-word-card .hi-words-word-text {
     background-image: linear-gradient(var(--color-green), var(--color-green));
     background-repeat: no-repeat;
@@ -1520,7 +1520,7 @@
     background-position: 0 55%;
 }
 
-/* 侧边栏分组样式 */
+/* Sidebar group styles */
 .hi-words-section {
     margin-bottom: 20px;
 }
@@ -1555,7 +1555,7 @@
     background-color: var(--background-modifier-hover);
 }
 
-/* 已掌握单词卡片样式 */
+/* Mastered word-card styles */
 .hi-words-word-card-mastered {
     opacity: 0.7;
     background-color: var(--background-secondary);
@@ -1578,7 +1578,7 @@
     color: var(--text-normal);
 }
 
-/* PDF 高亮特定样式 */
+/* PDF-specific highlight styles */
 .hi-words-pdf-highlight {
     position: absolute;
     z-index: 1;
@@ -1589,7 +1589,7 @@
     color: transparent;
 }
 
-/* PDF 中的下划线样式 */
+/* Underline style in PDF */
 .hi-words-pdf-highlight[data-style="underline"] {
     border-bottom: 2px solid var(--word-highlight-color, var(--text-muted));
     background: transparent;
@@ -1604,7 +1604,7 @@
     border-bottom: 2px solid var(--word-highlight-color, var(--text-muted));
 }
 
-/* PDF 中的背景高亮样式 - 使用 box-shadow 模拟 padding 效果，不影响布局 */
+/* Background highlight style in PDF - box-shadow simulates padding without affecting layout */
 .hi-words-pdf-highlight[data-style="background"] {
     background-color: color-mix(in srgb, var(--word-highlight-color, var(--text-muted)) 80%, transparent);
     border-radius: 2px;
@@ -1618,7 +1618,7 @@
     background-color: color-mix(in srgb, var(--word-highlight-color, var(--text-muted)) 100%, transparent);
 }
 
-/* PDF 中的粗体样式 */
+/* Bold style in PDF */
 .hi-words-pdf-highlight[data-style="bold"] {
     background-color: color-mix(in srgb, var(--word-highlight-color, var(--text-muted)) 25%, transparent);
 }
@@ -1631,7 +1631,7 @@
     background-color: color-mix(in srgb, var(--word-highlight-color, var(--text-muted)) 20%, transparent);
 }
 
-/* PDF 中的点状下划线样式 */
+/* Dotted underline style in PDF */
 .hi-words-pdf-highlight[data-style="dotted"] {
     border-bottom: 2px dotted var(--word-highlight-color, var(--text-muted));
 }
@@ -1646,7 +1646,7 @@
     border-bottom: 2px solid var(--word-highlight-color, var(--text-muted));
 }
 
-/* PDF 中的波浪线样式 */
+/* Wavy underline style in PDF */
 .hi-words-pdf-highlight[data-style="wavy"] {
     border-bottom: 2px solid var(--word-highlight-color, var(--text-muted));
 }
@@ -1659,20 +1659,20 @@
     background-color: color-mix(in srgb, var(--word-highlight-color, var(--text-muted)) 20%, transparent);
 }
 
-/* PDF 文本层特殊处理 */
+/* Special handling for PDF text layers */
 .textLayer .hi-words-pdf-highlight {
     display: block;
 }
 
-/* PDF 容器中的高亮优化 */
+/* Highlight optimizations inside PDF containers */
 .pdf-container .hi-words-pdf-highlight,
 .mod-pdf .hi-words-pdf-highlight {
     transition: background-color 0.12s ease, border-color 0.12s ease;
 }
 
-/* 暗色主题下的 PDF 高亮优化 */
+/* PDF highlight optimization for dark themes */
 .theme-dark .hi-words-pdf-highlight {
-    /* 在暗色主题下提供更好的对比度 */
+    /* Provide better contrast in dark themes */
     opacity: 1;
 }
 
@@ -1688,17 +1688,17 @@
                 2px 0 0 0 color-mix(in srgb, var(--word-highlight-color, var(--text-muted)) 35%, transparent);
 }
 
-/* 响应式设计 */
+/* Responsive design */
 @media (max-width: 768px) {
 
-    /* PDF 高亮在移动设备上的优化 */
+    /* PDF highlight optimization on mobile */
     .hi-words-pdf-highlight {
-        /* 不添加 padding，避免文本错位 */
+        /* No padding added, to avoid text misalignment */
         padding: 0;
     }
 }
 
-/* 高亮范围设置文本域样式 */
+/* Highlight-scope settings textarea styles */
 .hi-words-textarea-container {
     margin-top: 8px;
     margin-bottom: 8px;
@@ -1735,7 +1735,7 @@
     max-width: 100%;
 }
 
-/* JSON 编辑器文本域 */
+/* JSON editor textarea */
 .hi-words-json-editor {
     width: 100%;
     min-height: 120px;
@@ -1754,12 +1754,12 @@
     border-color: var(--interactive-accent);
 }
 
-/* JSON 错误状态 */
+/* JSON error state */
 .hi-words-json-editor.hi-words-json-error {
     border-color: var(--text-error);
 }
 
-/* 添加生词本按钮样式 */
+/* Add-word-book button styles */
 .hi-words-add-book-container {
     display: flex;
     align-items: center;
@@ -1795,7 +1795,7 @@
     height: 18px;
 }
 
-/* 生词本图标样式 */
+/* Word-book icon styles */
 .hi-words-book-icons {
     display: flex;
     gap: 4px;
@@ -1898,7 +1898,7 @@
     height: 16px;
 }
 
-/* 自动填充释义按钮样式 */
+/* Auto-fill-definition button styles */
 .hiwords-definition-label-container {
     display: flex;
     align-items: center;
@@ -1934,7 +1934,7 @@
     height: 16px;
 }
 
-/* 加载状态 */
+/* Loading state */
 .hiwords-auto-fill-btn.hiwords-loading {
     pointer-events: none;
 }

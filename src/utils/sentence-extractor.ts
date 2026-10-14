@@ -1,22 +1,22 @@
 /**
- * 句子提取工具
+ * Sentence extraction utility
  */
 
 /**
- * 从文本中提取包含指定位置的句子
- * @param text 完整文本
- * @param position 光标位置（相对于文本开头的字符索引）
- * @returns 提取的句子
+ * Extract from text the sentence containing the given position
+ * @param text the full text
+ * @param position cursor position (character index relative to the start of the text)
+ * @returns the extracted sentence
  */
 export function extractSentence(text: string, position: number): string {
     if (!text || position < 0 || position > text.length) {
         return '';
     }
 
-    // 句子结束标记
+    // Sentence-ending markers
     const sentenceEnders = /[.!?。！？\n]/;
     
-    // 向前查找句子开始位置
+    // Search backwards for the sentence start
     let start = position;
     while (start > 0) {
         const char = text[start - 1];
@@ -26,28 +26,28 @@ export function extractSentence(text: string, position: number): string {
         start--;
     }
     
-    // 向后查找句子结束位置
+    // Search forwards for the sentence end
     let end = position;
     while (end < text.length) {
         const char = text[end];
         if (sentenceEnders.test(char)) {
-            // 包含结束标点
+            // Include the ending punctuation
             end++;
             break;
         }
         end++;
     }
     
-    // 提取句子并清理空白
+    // Extract the sentence and trim whitespace
     const sentence = text.substring(start, end).trim();
     
     return sentence;
 }
 
 /**
- * 从编辑器中提取选中文本所在的句子
- * @param editor Obsidian 编辑器实例
- * @returns 提取的句子
+ * Extract the sentence containing the editor selection
+ * @param editor the Obsidian Editor instance
+ * @returns the extracted sentence
  */
 export function extractSentenceFromEditor(editor: Editor): string {
     try {
@@ -55,7 +55,7 @@ export function extractSentenceFromEditor(editor: Editor): string {
         const line = editor.getLine(cursor.line);
         const ch = cursor.ch;
         
-        // 使用 extractSentence 从当前行提取句子
+        // Use extractSentence on the current line
         return extractSentence(line, ch);
     } catch (error) {
         console.error('Failed to extract sentence from editor:', error);
@@ -64,23 +64,23 @@ export function extractSentenceFromEditor(editor: Editor): string {
 }
 
 /**
- * 从多行文本中提取句子
- * @param editor Obsidian 编辑器实例
- * @returns 提取的句子（可能跨行）
+ * Extract the sentence from multi-line text
+ * @param editor the Obsidian Editor instance
+ * @returns the extracted sentence (may span lines)
  */
 export function extractSentenceFromEditorMultiline(editor: Editor): string {
     try {
         const cursor = editor.getCursor();
         const doc = editor.getValue();
         
-        // 计算光标在整个文档中的位置
+        // Compute the cursor position within the whole document
         let position = 0;
         for (let i = 0; i < cursor.line; i++) {
             position += editor.getLine(i).length + 1; // +1 for newline
         }
         position += cursor.ch;
         
-        // 从整个文档中提取句子
+        // Extract the sentence from the whole document
         return extractSentence(doc, position);
     } catch (error) {
         console.error('Failed to extract sentence from editor (multiline):', error);
@@ -89,10 +89,10 @@ export function extractSentenceFromEditorMultiline(editor: Editor): string {
 }
 
 /**
- * 从 DOM Selection 中提取句子
- * 适用于阅读模式和 PDF 视图
- * @param selection window.getSelection() 返回的选区对象
- * @returns 提取的句子
+ * Extract the sentence from a DOM Selection
+ * Works for reading mode and PDF views
+ * @param selection the range object returned by window.getSelection()
+ * @returns the extracted sentence
  */
 export function extractSentenceFromSelection(selection: Selection | null): string {
     if (!selection || selection.rangeCount === 0) {
@@ -107,10 +107,10 @@ export function extractSentenceFromSelection(selection: Selection | null): strin
             return '';
         }
         
-        // 获取选区的起始节点
+        // Get the start node of the selection
         let startNode = range.startContainer;
         
-        // 如果是元素节点，尝试获取其中的文本节点
+        // If it is an element node, try to get a text node inside it
         if (startNode.nodeType === Node.ELEMENT_NODE) {
             const textNode = startNode.childNodes[range.startOffset];
             if (textNode && textNode.nodeType === Node.TEXT_NODE) {
@@ -118,22 +118,22 @@ export function extractSentenceFromSelection(selection: Selection | null): strin
             }
         }
         
-        // 查找合适的段落容器
+        // Find a suitable paragraph container
         const paragraphContainer = findParagraphContainer(startNode);
         if (!paragraphContainer) {
             return '';
         }
         
-        // 获取段落文本
+        // Get the paragraph text
         const paragraphText = paragraphContainer.textContent || '';
         
-        // 计算选中文本在段落中的实际位置
+        // Compute the actual position of the selected text within the paragraph
         const actualPosition = calculateTextPosition(paragraphContainer, startNode, range.startOffset, selectedText);
         if (actualPosition === -1) {
             return '';
         }
         
-        // 从选中文本的中间位置提取句子
+        // Extract the sentence around the middle of the selection
         const middlePosition = actualPosition + Math.floor(selectedText.length / 2);
         return extractSentence(paragraphText, middlePosition);
     } catch (error) {
@@ -143,14 +143,14 @@ export function extractSentenceFromSelection(selection: Selection | null): strin
 }
 
 /**
- * 查找合适的段落容器
- * @param startNode 起始节点
- * @returns 段落容器元素
+ * Find a suitable paragraph container
+ * @param startNode the start node
+ * @returns the paragraph container element
  */
 function findParagraphContainer(startNode: Node): HTMLElement | null {
     let currentNode: Node | null = startNode;
     
-    // 如果是文本节点，获取其父元素
+    // If it is a text node, get its parent element
     if (currentNode.nodeType === Node.TEXT_NODE) {
         currentNode = currentNode.parentNode;
     }
@@ -162,12 +162,12 @@ function findParagraphContainer(startNode: Node): HTMLElement | null {
             const element = currentNode as HTMLElement;
             const tagName = element.tagName?.toLowerCase();
             
-            // 阅读模式：查找段落级元素
+            // Reading mode: find paragraph-level elements
             if (tagName === 'p' || tagName === 'li' || tagName === 'blockquote') {
                 return element;
             }
             
-            // 查找合适大小的 div 容器
+            // Find a suitably sized div container
             if (tagName === 'div') {
                 const textLength = element.textContent?.length || 0;
                 if (textLength > 0 && textLength < 5000) {
@@ -175,12 +175,12 @@ function findParagraphContainer(startNode: Node): HTMLElement | null {
                 }
             }
             
-            // PDF 模式：查找 textLayer 容器
+            // PDF mode: find the textLayer container
             if (element.classList.contains('textLayer')) {
                 return element;
             }
             
-            // PDF 模式：从 page 容器中查找 textLayer
+            // PDF mode: find textLayer inside the page container
             if (element.classList.contains('page') && element.closest('.pdf-container')) {
                 const textLayer = element.querySelector('.textLayer');
                 if (textLayer) {
@@ -195,12 +195,12 @@ function findParagraphContainer(startNode: Node): HTMLElement | null {
 }
 
 /**
- * 计算选中文本在段落中的实际位置
- * @param container 段落容器
- * @param startNode 起始节点
- * @param startOffset 起始偏移量
- * @param selectedText 选中的文本
- * @returns 文本位置，-1 表示未找到
+ * Compute the actual position of the selected text within the paragraph
+ * @param container the paragraph container
+ * @param startNode the start node
+ * @param startOffset the start offset
+ * @param selectedText the selected text
+ * @returns the text position, -1 if not found
  */
 function calculateTextPosition(
     container: HTMLElement,
@@ -208,7 +208,7 @@ function calculateTextPosition(
     startOffset: number,
     selectedText: string
 ): number {
-    // 使用 TreeWalker 遍历文本节点来计算精确位置
+    // Use TreeWalker over text nodes to compute the exact position
     const walker = activeDocument.createTreeWalker(container, NodeFilter.SHOW_TEXT, null);
     
     let currentOffset = 0;
@@ -221,7 +221,7 @@ function calculateTextPosition(
         currentOffset += node.textContent?.length || 0;
     }
     
-    // 后备方案：使用 indexOf 查找
+    // Fallback: use indexOf
     const paragraphText = container.textContent || '';
     return paragraphText.indexOf(selectedText);
 }

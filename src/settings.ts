@@ -1,7 +1,7 @@
 import type { HiWordsSettings } from './utils';
 
 /**
- * 插件默认设置
+ * Plugin default settings
  */
 export const DEFAULT_SETTINGS: HiWordsSettings = {
     vocabularyBooks: [],
@@ -9,25 +9,25 @@ export const DEFAULT_SETTINGS: HiWordsSettings = {
     masteredMigrationVersion: 0,
     showDefinitionOnHover: true,
     enableAutoHighlight: true,
-    highlightStyle: 'underline', // 默认使用下划线样式
-    enableMasteredFeature: true, // 默认启用已掌握功能
-    showMasteredInSidebar: true,  // 跟随 enableMasteredFeature 的值
-    blurDefinitions: false, // 默认不启用模糊效果
-    // 发音地址模板（用户可在设置里修改）
+    highlightStyle: 'underline', // Underline style by default
+    enableMasteredFeature: true, // Mastered feature enabled by default
+    showMasteredInSidebar: true,  // Follows the value of enableMasteredFeature
+    blurDefinitions: false, // Blur effect disabled by default
+    // Pronunciation URL template (user-editable in settings)
     ttsTemplate: 'https://dict.youdao.com/dictvoice?audio={{word}}&type=2',
     pronunciationVariant: 'us',
-    // 自动布局（简化版，使用固定参数）
+    // Auto layout (simplified, fixed parameters)
     autoLayoutEnabled: true,
-    // 卡片尺寸设置
+    // Card size settings
     cardWidth: 260,
     cardHeight: 120,
-    // 高亮范围设置
+    // Highlight scope settings
     highlightMode: 'all',
     highlightPaths: '',
-    // 文件节点解析模式
+    // File-node parsing mode
     fileNodeParseMode: 'filename-with-alias',
-    // 分区 Tab 显示
+    // Section tab display
     enableSectionTabs: true,
-    // 侧边栏默认显示模式
+    // Sidebar default display mode
     sidebarDefaultDisplayMode: 'detail',
 };

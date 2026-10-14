@@ -1,7 +1,7 @@
-// 使用 Obsidian 官方 Canvas 类型
+// Use Obsidian's official Canvas types
 import type { AllCanvasNodeData, CanvasData as ObsidianCanvasData } from 'obsidian/canvas';
 
-// 导出官方类型的别名以保持向后兼容
+// Export aliases of the official types for backward compatibility
 export type CanvasNode = AllCanvasNodeData;
 export type CanvasData = ObsidianCanvasData;
 
@@ -160,23 +160,23 @@ export interface WordCard {
     images?: WordCardImage[];
 }
 
-// 词汇定义
+// Vocabulary definition
 export interface WordDefinition {
     word: string;
     type?: LearningItemType;
     language?: string;
     studyKey?: string;
-    aliases?: string[]; // 单词的别名列表
-    definition: string; // 兼容旧版：有分区时保存首个分区内容
-    rawDefinition?: string; // 原始完整定义（包含所有分区）
-    sections?: WordSection[]; // 使用 --- 分隔的多分区内容
-    source: string; // Canvas 文件路径
-    nodeId: string; // Canvas 节点 ID
+    aliases?: string[]; // List of word aliases
+    definition: string; // Legacy compatibility: store the first section's content when sections exist
+    rawDefinition?: string; // Original full definition (includes all sections)
+    sections?: WordSection[]; // Multi-section content separated by ---
+    source: string; // Canvas file path
+    nodeId: string; // Canvas node ID
     color?: string;
-    mastered?: boolean; // 是否已掌握
-    isPattern?: boolean; // 是否为模式短语（包含 ... 占位符）
-    patternParts?: string[]; // 模式短语的各个部分（不包含 ...）
-    card?: WordCard; // HiWords 结构化词卡（来自 .hiwords 词库包）
+    mastered?: boolean; // Whether mastered
+    isPattern?: boolean; // Whether it is a pattern phrase (contains ... placeholders)
+    patternParts?: string[]; // Parts of the pattern phrase (excluding ...)
+    card?: WordCard; // HiWords structured word card (from a .hiwords dictionary package)
     userNote?: string;
     userNoteSource?: {
         source: string;
@@ -195,16 +195,16 @@ export interface StudyItem {
     primary: WordDefinition;
 }
 
-// 生词本配置
+// Word book configuration
 export interface VocabularyBook {
-    path: string; // Canvas 文件路径
-    name: string; // 显示名称
-    enabled: boolean; // 是否启用
-    color?: string; // .hiwords 词库默认颜色，使用 Canvas-style color id: "1".."6"
-    display?: VocabularyBookDisplaySettings; // 词库级详情显示偏好
+    path: string; // Canvas file path
+    name: string; // Display name
+    enabled: boolean; // Whether enabled
+    color?: string; // .hiwords dictionary default color, using Canvas-style color ids "1".."6"
+    display?: VocabularyBookDisplaySettings; // Dictionary-level detail display preference
 }
 
-// 高亮样式类型
+// Highlight style type
 export type HighlightStyle = 'underline' | 'background' | 'bold' | 'dotted' | 'wavy';
 
 export type LearningItemType = 'word' | 'phrase' | 'concept' | 'term';
@@ -215,43 +215,43 @@ export interface StudyProgressItem {
     updatedAt: string;
 }
 
-// 插件设置
+// Plugin settings
 export interface HiWordsSettings {
     vocabularyBooks: VocabularyBook[];
     studyProgress?: Record<string, StudyProgressItem>;
     masteredMigrationVersion?: number;
     showDefinitionOnHover: boolean;
     enableAutoHighlight: boolean;
-    highlightStyle: HighlightStyle; // 高亮样式
-    enableMasteredFeature: boolean; // 启用已掌握功能
-    showMasteredInSidebar: boolean; // 在侧边栏显示已掌握单词
-    blurDefinitions: boolean; // 模糊定义内容，悬停时显示
-    // 发音地址模板（如：https://dict.youdao.com/dictvoice?audio={{word}}&type=2）
+    highlightStyle: HighlightStyle; // Highlight style
+    enableMasteredFeature: boolean; // Enable the mastered feature
+    showMasteredInSidebar: boolean; // Show mastered words in the sidebar
+    blurDefinitions: boolean; // Blur definition content; reveal on hover
+    // Pronunciation URL template (e.g. https://dict.youdao.com/dictvoice?audio={{word}}&type=2)
     ttsTemplate?: string;
     pronunciationVariant?: 'uk' | 'us';
-    // 自动布局设置（简化版）
-    autoLayoutEnabled?: boolean; // 是否启用自动布局（使用固定参数的简单网格）
-    // 卡片尺寸设置
-    cardWidth?: number; // 卡片宽度（默认 260）
-    cardHeight?: number; // 卡片高度（默认 120）
-    // 高亮范围设置
-    highlightMode?: 'all' | 'exclude' | 'include'; // 高亮模式：全部/排除/仅指定
-    highlightPaths?: string; // 文件路径列表（逗号分隔）
-    // 文件节点解析模式
-    fileNodeParseMode?: 'filename' | 'content' | 'filename-with-alias'; // 文件节点解析模式
-    // 启用分区 Tab 显示
+    // Auto-layout settings (simplified)
+    autoLayoutEnabled?: boolean; // Whether auto-layout is enabled (simple grid with fixed parameters)
+    // Card size settings
+    cardWidth?: number; // Card width (default 260)
+    cardHeight?: number; // Card height (default 120)
+    // Highlight scope settings
+    highlightMode?: 'all' | 'exclude' | 'include'; // Highlight mode: all/exclude/include
+    highlightPaths?: string; // File path list (comma-separated)
+    // File-node parsing mode
+    fileNodeParseMode?: 'filename' | 'content' | 'filename-with-alias'; // File-node parsing mode
+    // Enable section tabs
     enableSectionTabs?: boolean;
-    // 侧边栏默认显示模式：详情模式显示完整内容，单词模式仅显示标题行
+    // Sidebar default display mode: detail mode shows full content, word mode shows only the title line
     sidebarDefaultDisplayMode?: 'detail' | 'word';
 }
 
-// 词汇匹配信息
+// Vocabulary match information
 export interface WordMatch {
     word: string;
     definition: WordDefinition;
     from: number;
     to: number;
     color: string;
-    matchedText?: string; // 实际匹配到的文本（用于模式短语）
-    segments?: Array<{from: number, to: number}>; // 分段高亮的位置（用于模式短语）
+    matchedText?: string; // The actually matched text (for pattern phrases)
+    segments?: Array<{from: number, to: number}>; // Segmented highlight positions (for pattern phrases)
 }

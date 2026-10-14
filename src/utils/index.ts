@@ -1,5 +1,5 @@
 /**
- * 工具类和辅助函数模块
+ * Utility classes and helper functions module
  */
 
 export { Trie } from './trie';
