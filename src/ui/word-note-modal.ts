@@ -34,7 +34,7 @@ export class WordNoteModal extends Modal {
         const leftButtons = buttons.createDiv({ cls: 'hiwords-button-group-left' });
         if (this.wordDef.userNoteSource) {
             const deleteButton = leftButtons.createEl('button', {
-                cls: 'delete-word-button',
+                cls: 'mod-warning',
                 attr: { title: t('sidebar.delete_note'), 'aria-label': t('sidebar.delete_note') },
             });
             setIcon(deleteButton, 'trash');

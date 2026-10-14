@@ -216,8 +216,10 @@ export class AddWordModal extends Modal {
             : null;
 
         if (deletableSource) {
+            // Styling relies on Obsidian's built-in classes only:
+            // "mod-warning" for the destructive red button (no custom CSS needed).
             const deleteButton = leftButtonGroup.createEl('button', {
-                cls: 'delete-word-button',
+                cls: 'mod-warning',
                 attr: { title: t('modals.delete_button'), 'aria-label': t('modals.delete_button') },
             });
             // Use Obsidian's setIcon
@@ -236,7 +238,6 @@ export class AddWordModal extends Modal {
                     window.clearTimeout(confirmTimer);
                     confirmTimer = undefined;
                 }
-                deleteButton.removeClass('is-confirming');
                 deleteButton.empty();
                 setIcon(deleteButton, 'trash');
                 deleteButton.setAttribute('title', t('modals.delete_button'));
@@ -247,7 +248,6 @@ export class AddWordModal extends Modal {
                 if (!confirmArmed) {
                     // First click: arm the button and ask for confirmation inline
                     confirmArmed = true;
-                    deleteButton.addClass('is-confirming');
                     deleteButton.empty();
                     deleteButton.setText(t('modals.confirm_delete_button'));
                     deleteButton.setAttribute('title', t('modals.delete_confirmation').replace('{0}', this.definition?.word || this.word).split('\n')[0]);
