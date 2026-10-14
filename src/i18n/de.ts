@@ -41,12 +41,6 @@ export default {
         enable_mastered_feature_desc: "Gemeisterte Wörter markieren, um sie nicht mehr hervorzuheben. Seitenleiste zeigt Gruppen",
         blur_definitions: "Inhalt verwischen",
         blur_definitions_desc: "Standardmäßig verwischen, beim Hover anzeigen. Ideal zum Erinnern vor dem Anzeigen der Antwort",
-        tts_template: "TTS-Vorlage",
-        tts_template_desc: "{{word}}, {{type}} und {{accent}} als Platzhalter verwenden. Die Standard-Youdao-Vorlage wechselt type automatisch",
-        pronunciation_variant: "Aussprache",
-        pronunciation_variant_desc: "Wählen Sie, welchen Akzent strukturierte Karten anzeigen und abspielen",
-        pronunciation_uk: "UK",
-        pronunciation_us: "US",
         // Auto layout
         auto_layout: "Automatisches Canvas-Layout",
         enable_auto_layout: "Automatisches Layout aktivieren",

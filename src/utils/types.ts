@@ -34,12 +34,6 @@ export interface WordCardPhonetics {
     us?: string;
 }
 
-export interface WordCardAudio {
-    uk?: string;
-    us?: string;
-    default?: string;
-}
-
 export interface WordCardImage {
     src: string;
     alt?: string;
@@ -134,7 +128,6 @@ export interface WordCard {
     color?: string; // Optional Canvas-style color id: "1".."6"
     phonetic?: string; // v1 compatibility; prefer phonetics in new .hiwords packs
     phonetics?: WordCardPhonetics;
-    audio?: WordCardAudio;
     language?: string;
     level?: string;
     partsOfSpeech?: string[];
@@ -226,9 +219,6 @@ export interface HiWordsSettings {
     enableMasteredFeature: boolean; // Enable the mastered feature
     showMasteredInSidebar: boolean; // Show mastered words in the sidebar
     blurDefinitions: boolean; // Blur definition content; reveal on hover
-    // Pronunciation URL template (e.g. https://dict.youdao.com/dictvoice?audio={{word}}&type=2)
-    ttsTemplate?: string;
-    pronunciationVariant?: 'uk' | 'us';
     // Auto-layout settings (simplified)
     autoLayoutEnabled?: boolean; // Whether auto-layout is enabled (simple grid with fixed parameters)
     // Card size settings

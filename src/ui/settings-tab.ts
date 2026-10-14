@@ -299,37 +299,6 @@ export class HiWordsSettingTab extends PluginSettingTab {
                     }, 'HiWords failed to save blurred definition setting:');
                 }));
 
-        // Pronunciation URL template (click headword to pronounce)
-        new Setting(containerEl)
-            .setName(t('settings.tts_template') || 'TTS template')
-            .setDesc(t('settings.tts_template_desc') || 'Use {{word}}, {{type}}, and {{accent}} as placeholders.')
-            .addText(text => text
-                .setPlaceholder('https://...{{word}}...')
-                .setValue(this.plugin.settings.ttsTemplate || 'https://dict.youdao.com/dictvoice?audio={{word}}&type=2')
-                .onChange((val) => {
-                    this.runAsync(async () => {
-                        this.plugin.settings.ttsTemplate = val.trim();
-                        await this.plugin.saveSettings();
-                    }, 'HiWords failed to save pronunciation template:');
-                }));
-
-        new Setting(containerEl)
-            .setName(t('settings.pronunciation_variant') || 'Pronunciation')
-            .setDesc(t('settings.pronunciation_variant_desc') || 'Choose which accent to display and play for structured word cards')
-            .addDropdown(dropdown => dropdown
-                .addOption('us', t('settings.pronunciation_us') || 'US')
-                .addOption('uk', t('settings.pronunciation_uk') || 'UK')
-                .setValue(this.plugin.settings.pronunciationVariant || 'us')
-                .onChange((value) => {
-                    this.runAsync(async () => {
-                        this.plugin.settings.pronunciationVariant = value as 'us' | 'uk';
-                        await this.plugin.saveSettings();
-                        this.plugin.app.workspace.trigger('hi-words:settings-changed');
-                        this.plugin.refreshHighlighter();
-                        this.display();
-                    }, 'HiWords failed to save pronunciation preference:');
-                }));
-
     }
 
     /**
@@ -450,7 +419,7 @@ export class HiWordsSettingTab extends PluginSettingTab {
                 setIcon(previewIcon, 'panel-top-open');
                 previewIcon.setAttribute('aria-label', t('settings.preview_book'));
                 previewIcon.addEventListener('click', () => {
-                    new HiWordsPackPreviewModal(this.app, book, this.plugin.settings.pronunciationVariant || 'us').open();
+                    new HiWordsPackPreviewModal(this.app, book).open();
                 });
             }
 
@@ -631,12 +600,10 @@ export class HiWordsSettingTab extends PluginSettingTab {
 
 class HiWordsPackPreviewModal extends Modal {
     private book: VocabularyBook;
-    private pronunciationVariant: 'uk' | 'us';
 
-    constructor(app: App, book: VocabularyBook, pronunciationVariant: 'uk' | 'us') {
+    constructor(app: App, book: VocabularyBook) {
         super(app);
         this.book = book;
-        this.pronunciationVariant = pronunciationVariant;
     }
 
     onOpen() {
@@ -692,7 +659,6 @@ class HiWordsPackPreviewModal extends Modal {
             renderWordCard(body, definition, {
                 mode: 'sidebar',
                 app: this.app,
-                pronunciationVariant: this.pronunciationVariant,
             });
         }
 

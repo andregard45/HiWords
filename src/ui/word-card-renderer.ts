@@ -7,8 +7,6 @@ export type WordCardRenderMode = 'popover' | 'sidebar';
 interface RenderOptions {
     mode: WordCardRenderMode;
     app?: App;
-    pronunciationVariant?: 'uk' | 'us';
-    onPronunciationClick?: (variant: 'uk' | 'us') => void | Promise<void>;
     onOpenDetail?: () => void | Promise<void>;
     onNoteClick?: () => void | Promise<void>;
     noteActionLabel?: string;
@@ -57,7 +55,7 @@ export function renderWordCard(container: HTMLElement, wordDef: WordDefinition, 
     const detailSections = uniqueSections(options.display?.detailSections || detailDefaults)
         .filter(section => !hiddenSections.includes(section) && !previewSections.includes(section));
 
-    renderMeta(root, card, options.pronunciationVariant || 'us', options.onPronunciationClick);
+    renderMeta(root, card);
     if (!isPreview) {
         renderImages(root, card, options.app);
     }
@@ -161,11 +159,9 @@ function getLegacyPreviewSections(density: WordCardPreviewDensity): WordCardDeta
 
 function renderMeta(
     root: HTMLElement,
-    card: WordCard,
-    pronunciationVariant: 'uk' | 'us',
-    onPronunciationClick?: (variant: 'uk' | 'us') => void | Promise<void>
+    card: WordCard
 ): void {
-    const phonetics = getPhoneticItems(card, pronunciationVariant);
+    const phonetics = getPhoneticItems(card);
     const hasMeta = phonetics.length > 0 ||
         card.level ||
         card.difficulty !== undefined ||
@@ -182,14 +178,6 @@ function renderMeta(
 
     for (const item of phonetics) {
         const phonetic = meta.createSpan({ cls: 'hi-words-structured-phonetic' });
-        if (onPronunciationClick) {
-            phonetic.setAttribute('aria-label', `Play ${item.variant.toUpperCase()} pronunciation`);
-            phonetic.addEventListener('click', (event) => {
-                event.preventDefault();
-                event.stopPropagation();
-                void onPronunciationClick(item.variant);
-            });
-        }
         if (item.label) {
             phonetic.createSpan({ text: item.label, cls: 'hi-words-structured-phonetic-label' });
         }
@@ -257,19 +245,14 @@ function isInternalDisplayTag(normalizedTag: string): boolean {
     );
 }
 
-function getPhoneticItems(card: WordCard, pronunciationVariant: 'uk' | 'us'): Array<{ label: string; value: string; variant: 'uk' | 'us' }> {
+function getPhoneticItems(card: WordCard): Array<{ label: string; value: string }> {
     if (card.phonetics?.uk || card.phonetics?.us) {
-        const preferred = card.phonetics[pronunciationVariant];
-        if (preferred) {
-            return [{ label: pronunciationVariant.toUpperCase(), value: preferred, variant: pronunciationVariant }];
-        }
-
-        const fallbackVariant = pronunciationVariant === 'uk' ? 'us' : 'uk';
-        const fallback = card.phonetics[fallbackVariant];
-        return fallback ? [{ label: fallbackVariant.toUpperCase(), value: fallback, variant: fallbackVariant }] : [];
+        const preferred = card.phonetics.us ?? card.phonetics.uk;
+        const label = card.phonetics.us ? 'US' : 'UK';
+        return preferred ? [{ label, value: preferred }] : [];
     }
 
-    return card.phonetic ? [{ label: '', value: card.phonetic, variant: pronunciationVariant }] : [];
+    return card.phonetic ? [{ label: '', value: card.phonetic }] : [];
 }
 
 function renderImages(root: HTMLElement, card: WordCard, app?: App): void {

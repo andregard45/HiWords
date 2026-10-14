@@ -121,7 +121,6 @@
     color: var(--text-accent);
     margin-bottom: 4px;
     padding-bottom: 4px;
-    cursor: pointer;
 }
 
 /* Remove bottom margin when the title is inside the container to keep alignment */
@@ -731,7 +730,6 @@
     word-wrap: break-word;
     overflow-wrap: break-word;
     min-width: 0;
-    cursor: pointer;
 }
 
 .hi-words-word-source {
@@ -2232,17 +2230,6 @@
     color: var(--text-normal);
     font-weight: 700;
     line-height: 1.35;
-    cursor: pointer;
-}
-
-.hi-words-library-word-name:hover {
-    color: var(--interactive-accent);
-}
-
-.hi-words-library-word-name:focus-visible {
-    outline: 2px solid var(--background-modifier-border-focus);
-    outline-offset: 2px;
-    border-radius: 3px;
 }
 
 .hi-words-library-study-key {
