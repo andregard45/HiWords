@@ -41,12 +41,6 @@ export default {
         enable_mastered_feature_desc: "習得済みの単語をマークしてハイライトを停止。サイドバーにグループ表示",
         blur_definitions: "コンテンツをぼかす",
         blur_definitions_desc: "デフォルトでぼかし、ホバー時に表示。学習時に答えを見る前に思い出すのに最適",
-        tts_template: "TTSテンプレート",
-        tts_template_desc: "{{word}}、{{type}}、{{accent}}をプレースホルダーとして使用。既定の有道テンプレートは type を自動切替",
-        pronunciation_variant: "発音",
-        pronunciation_variant_desc: "構造化カードで表示・再生するアクセントを選択",
-        pronunciation_uk: "UK",
-        pronunciation_us: "US",
         // Auto layout
         auto_layout: "キャンバス自動レイアウト",
         enable_auto_layout: "自動レイアウトを有効化",

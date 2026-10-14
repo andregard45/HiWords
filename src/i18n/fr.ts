@@ -41,13 +41,6 @@ export default {
         enable_mastered_feature_desc: "Marquer les mots maîtrisés pour arrêter de les surligner. La barre latérale affiche les groupes",
         blur_definitions: "Flouter le contenu",
         blur_definitions_desc: "Flouter par défaut, révéler au survol. Idéal pour mémoriser avant de voir la réponse",
-        // TTS template
-        tts_template: "Modèle TTS",
-        tts_template_desc: "Utilisez {{word}}, {{type}} et {{accent}} comme espaces réservés. Le modèle Youdao par défaut change automatiquement type",
-        pronunciation_variant: "Prononciation",
-        pronunciation_variant_desc: "Choisissez l'accent affiché et lu par les cartes structurées",
-        pronunciation_uk: "UK",
-        pronunciation_us: "US",
         // Auto layout
         auto_layout: "Disposition auto du canevas",
         enable_auto_layout: "Activer la disposition automatique",

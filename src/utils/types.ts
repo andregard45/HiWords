@@ -34,12 +34,6 @@ export interface WordCardPhonetics {
     us?: string;
 }
 
-export interface WordCardAudio {
-    uk?: string;
-    us?: string;
-    default?: string;
-}
-
 export interface WordCardImage {
     src: string;
     alt?: string;
@@ -134,7 +128,6 @@ export interface WordCard {
     color?: string; // Optional Canvas-style color id: "1".."6"
     phonetic?: string; // v1 compatibility; prefer phonetics in new .hiwords packs
     phonetics?: WordCardPhonetics;
-    audio?: WordCardAudio;
     language?: string;
     level?: string;
     partsOfSpeech?: string[];
@@ -226,9 +219,6 @@ export interface HiWordsSettings {
     enableMasteredFeature: boolean; // 启用已掌握功能
     showMasteredInSidebar: boolean; // 在侧边栏显示已掌握单词
     blurDefinitions: boolean; // 模糊定义内容，悬停时显示
-    // 发音地址模板（如：https://dict.youdao.com/dictvoice?audio={{word}}&type=2）
-    ttsTemplate?: string;
-    pronunciationVariant?: 'uk' | 'us';
     // 自动布局设置（简化版）
     autoLayoutEnabled?: boolean; // 是否启用自动布局（使用固定参数的简单网格）
     // 卡片尺寸设置

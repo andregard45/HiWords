@@ -1,7 +1,7 @@
 import { App, ItemView, MarkdownRenderer, Modal, Notice, setIcon, WorkspaceLeaf } from 'obsidian';
 import type HiWordsPlugin from '../../main';
 import type { VocabularyBook, VocabularyBookDisplaySettings, WordCardDetailSection, WordDefinition } from '../utils';
-import { mapCanvasColorToCSSVar, getColorWithOpacity, playWordTTS } from '../utils';
+import { mapCanvasColorToCSSVar, getColorWithOpacity } from '../utils';
 import { t } from '../i18n';
 import { DEFAULT_WORD_CARD_DETAIL_SECTIONS, DEFAULT_WORD_CARD_PREVIEW_SECTIONS, renderWordCard } from './word-card-renderer';
 import { AddWordModal } from './add-word-modal';
@@ -657,20 +657,15 @@ export class HiWordsLibraryView extends ItemView {
             cls: 'hi-words-library-word-name',
             attr: { role: 'button', tabindex: '0' },
         });
-        word.onclick = (event) => {
-            event.stopPropagation();
-            void playWordTTS(this.plugin, definition.word, definition).catch(error => {
-                console.error('HiWords 播放发音失败:', error);
-            });
-        };
         word.onmouseenter = () => this.scheduleTooltip(word, definition);
         word.onmouseleave = () => this.scheduleTooltipHide();
         word.onkeydown = (event) => {
             if (event.key !== 'Enter' && event.key !== ' ') return;
             event.preventDefault();
             event.stopPropagation();
-            void playWordTTS(this.plugin, definition.word, definition).catch(error => {
-                console.error('HiWords 播放发音失败:', error);
+            this.removeTooltip();
+            void this.plugin.showWordInSidebar(definition, 'library').catch(error => {
+                console.error('HiWords 打开词卡详情失败:', error);
             });
         };
         if (definition.aliases?.length) {
@@ -749,13 +744,7 @@ export class HiWordsLibraryView extends ItemView {
         tooltip.addEventListener('mouseleave', () => this.scheduleTooltipHide());
 
         const titleContainer = tooltip.createDiv({ cls: 'hi-words-tooltip-title-container' });
-        const title = titleContainer.createDiv({ cls: 'hi-words-tooltip-title', text: definition.word });
-        title.onclick = (event) => {
-            event.stopPropagation();
-            void playWordTTS(this.plugin, definition.word, definition).catch(error => {
-                console.error('HiWords 播放发音失败:', error);
-            });
-        };
+        titleContainer.createDiv({ cls: 'hi-words-tooltip-title', text: definition.word });
 
         const content = tooltip.createDiv({ cls: 'hi-words-tooltip-content' });
         content.addClass(this.plugin.settings.blurDefinitions ? 'hi-words-definition blur-enabled' : 'hi-words-definition');
@@ -767,12 +756,6 @@ export class HiWordsLibraryView extends ItemView {
             renderWordCard(content, definition, {
                 mode: 'popover',
                 app: this.app,
-                pronunciationVariant: this.plugin.settings.pronunciationVariant || 'us',
-                onPronunciationClick: (variant) => {
-                    void playWordTTS(this.plugin, definition.word, definition, variant).catch(error => {
-                        console.error('HiWords 播放发音失败:', error);
-                    });
-                },
                 display: this.plugin.getVocabularyBookDisplaySettings(definition.source),
                 onNoteClick: definition.source.endsWith('.hiwords') || definition.userNoteSource
                     ? () => {
