@@ -173,7 +173,8 @@ export class AddWordModal extends Modal {
             placeholder: t('modals.definition_placeholder'),
             cls: 'setting-item-input hiwords-word-definition-input'
         });
-        definitionInput.rows = 5;
+        // Default height enlarged by 1.25x (was 5 rows)
+        definitionInput.rows = 7;
 
         // In edit mode, prefill the definition if present
         if (this.isEditMode && this.definition) {
