@@ -25,7 +25,8 @@ export class WordNoteModal extends Modal {
             attr: { placeholder: t('sidebar.note_placeholder') },
         });
         textarea.value = existingNote;
-        textarea.rows = 8;
+        // Default height enlarged by 1.25x (was 8 rows)
+        textarea.rows = 10;
         window.setTimeout(() => textarea.focus(), 50);
 
         const bookSelect = this.createBookSelect();

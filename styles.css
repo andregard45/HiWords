@@ -130,7 +130,8 @@
 }
 
 .hi-words-tooltip-content {
-    color: var(--text-muted);
+    /* Description text in the popup should use the normal text color */
+    color: var(--text-normal);
     line-height: 1.5;
     font-size: 14px;
     margin-bottom: 6px;
@@ -401,7 +402,8 @@
 /* Add-word modal styles */
 .hiwords-word-definition-input {
     width: 100%;
-    min-height: 100px;
+    /* 1.25x the previous default height (100px) */
+    min-height: 125px;
     /* Spacing is handled uniformly by .hiwords-form-item (label -> box gap) */
     margin: 0;
 }
